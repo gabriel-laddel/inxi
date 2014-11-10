@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# inxi_globals
+
+INXI_HOME="$HOME/Applications/inxi/modules"
+RESOURCES="$INXI_HOME/org/inxi/resources"
+
+source $RESOURCES/inxi_exports
+
+# cat /sys/devices/system/cpu/cpu*/topology/thread_siblings_list
+# alias_cpu_ht=$( cat $cpu_sys_data/cpu*/topology/thread_siblings_list )
+alias_avail_procs=$( cat /sys/devices/system/cpu/present )
+
+
+cpu_sys_data="/sys/devices/system/cpu"
+cpu_max=$cpu_sys_data"/cpu0/cpufreq/cpuinfo_max_freq"
+cpu_min=$cpu_sys_data"/cpu0/cpufreq/cpuinfo_min_freq"
+cpu_cur="/cpufreq/scaling_cur_freq"
+## gives cpu cores, first-last, ie 0-7 for 8 vcore cpu
+cpu_all_core_count="/sys/devices/system/cpu/present"
+cpu_topology="/topology/core_id"
+

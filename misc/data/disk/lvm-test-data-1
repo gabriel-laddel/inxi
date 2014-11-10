@@ -1,0 +1,41 @@
+df -h -T
+Filesystem    Type    Size  Used Avail Use% Mounted on
+/dev/dm-0      xfs    147G   21G  127G  15% /
+/dev/sda1     ext3    190M   30M  151M  17% /boot
+tmpfs        tmpfs   1008M     0 1008M   0% /dev/shm
+
+
+cat /proc/mounts
+rootfs / rootfs rw 0 0
+/dev/root / xfs rw,attr2,nobarrier,noquota 0 0
+/dev /dev tmpfs rw,mode=755 0 0
+/proc /proc proc rw 0 0
+/sys /sys sysfs rw 0 0
+/proc/bus/usb /proc/bus/usb usbfs rw 0 0
+devpts /dev/pts devpts rw,gid=5,mode=620 0 0
+/dev/sda1 /boot ext3 rw,errors=continue,user_xattr,acl,data=ordered 0 0
+tmpfs /dev/shm tmpfs rw 0 0
+none /proc/sys/fs/binfmt_misc binfmt_misc rw 0 0
+sunrpc /var/lib/nfs/rpc_pipefs rpc_pipefs rw 0 0
+nfsd /proc/fs/nfsd nfsd rw 0 0
+
+
+ls -l /dev/disk/by-uuid
+total 0
+drwxr-xr-x 2 root root  60 Feb 11 16:23 ./
+drwxr-xr-x 6 root root 120 Feb 11 16:23 ../
+lrwxrwxrwx 1 root root  10 Feb 11 16:23 cf1b745c-8ae4-434d-9b1b-84d444fd9c6c -> ../../sda1
+
+ls -l /dev/disk/by-label
+total 0
+drwxr-xr-x 2 root root  60 Feb 11 16:23 ./
+drwxr-xr-x 6 root root 120 Feb 11 16:23 ../
+lrwxrwxrwx 1 root root  10 Feb 11 16:23 \x2fboot -> ../../sda1
+
+cat /proc/partitions
+major minor  #blocks  name
+  8     0  156290904 sda
+  8     1     200781 sda1
+  8     2  156087540 sda2
+ 253     0  154009600 dm-0
+ 253     1    2031616 dm-1

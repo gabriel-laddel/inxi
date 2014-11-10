@@ -1,0 +1,12 @@
+#summary Other system information scripts.
+Some other sysinfo scripts in perl.
+
+http://scripts.irssi.org/html/sysinfo277-irssi.pl.html
+
+http://scripts.irssi.org/html/sysinfo270-irssi.pl.html
+
+http://scripts.irssi.org/html/sysinfoplus.pl.html
+
+----
+To go to wiki list try clicking
+[http://code.google.com/p/inxi/w/list here]

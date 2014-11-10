@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# get_cpu_data
+
+INXI_HOME="$HOME/Applications/inxi/modules"
+source $INXI_HOME/inxi_sources
+
+## Using hash technique for variables
+## variable="key:value key2:value2 key3:value3" etc
+## example hash reader this_var=$( echo $1 | gawk -v key="$key" ' BEGIN { FS=":" } key { data = $2 }; END { print data } ' )
+#### -v in gawk will pass bash variables
+
+get_cpu_data()
+{
+	get_cpu_freq_limits 
+	get_core_count 
+	get_cpu_core_freq
+}
+
+## get the maximum and minimum frequency limits of the processor cores
+get_cpu_freq_limits()
+{
+	cpu_dirs=( "$cpu_max $cpu_min" )
+	cpu_keys=( "cpu_max_freq" "cpu_min_freq" )
+	j=0
+	
+	for i in $cpu_dirs; do
+		gawk -v key="${cpu_keys[$j]}" '
+			BEGIN {
+				ORS = " "
+			}{ 
+				data = $0 / 1000
+			}; END { 
+				printf "%s:%s ", key, data 
+			}' $i
+		((j++))
+	done
+}
+
+## get number of cores, including virtual cores
+get_core_count()
+{
+	if [[ $avail_procs -ne 0 ]]; then
+		echo $avail_procs | gawk -v key="cpu_cores_num" '
+			BEGIN {
+				FS = "-"
+				ORS = " "
+			}{
+				num_of_core = $2 + 1
+			}; END {
+				printf "%s:%s ", key, num_of_core
+			}'
+	fi
+}
+
+#H_CPU_DATA=$(get_cpu_data)
+
+#echo $H_CPU_DATA
+
+echo $(get_ht_data)
+
+
+## processor vendor info is only available via /proc
+## no evidence found that it's in /sys
+
+## basedir /sys/devices/system/cpu
+## count $basedir/cpu* for total number of cores, including HT v-cores
+
+## count $basedir/cache/* for total number of cache levels (count -1)
+#### index0 and index1 are both halves of L1 cache, index2 is L2, index3 is L3, etc
+
+## if $basedir/cpu0/topology/thread_siblings_list contains:
+#### 1 item is non-HT
+#### 2 items is HT
+
+## 

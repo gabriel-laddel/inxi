@@ -1,0 +1,69 @@
+# this gets just the raw data, total space/percent used and disk/name/per disk capacity
+get_hdd_data_basic()
+{
+	local hdd_used=''
+
+	hdd_used=$( df | gawk '
+	p {
+		if (/^\/dev\/(mapper\/|[hs]d[a-z][0-9]+)/) {
+			if (NF == 1) {
+				getline
+				if (NF == 5) {
+					c += $2
+				}
+				else {
+					next
+				}
+			}
+			else if (NF == 6) {
+				c += $3
+			}
+		}
+	}
+	/^Filesystem/ { p++ }
+	END {
+		print c
+	}' )
+
+	if [[ -z $hdd_used ]];then
+		hdd_used='na'
+	fi
+
+	# create the initial array strings:
+	# disk-dev, capacity, name, usb or not
+	# final item is the total of the disk
+	IFS=$'\n'
+
+	if [[ $B_PARTITIONS_DIR == 'true' ]];then
+		A_HDD_DATA=( $( gawk -v hddused="$hdd_used" '
+		/[hs]d[a-z]$/ {
+			driveSize = $(NF - 1)*1024/1000**3
+			gsub(/,/, " ", driveSize)
+			gsub(/^ +| +$/, "", driveSize)
+			printf( $NF",%.1fGB,,\n", driveSize )
+		}
+		# See http://lanana.org/docs/device-list/devices-2.6+.txt for major numbers used below
+		# $1 ~ /^(3|22|33|8)$/ && $2 % 16 == 0  {size+=$3}
+		# special case from this data: 8     0  156290904 sda
+		$1 ~ /^(3|22|33|8)$/ && $NF ~ /[hs]d[a-z]$/ && ( $2 % 16 == 0 || $2 % 16 == 8 )  {size+=$3}
+		END {
+			size = size*1024/1000**3                   # calculate size in GB size
+			workingUsed = hddused*1024/1000**3         # calculate workingUsed in GB used
+			# this handles a special case with livecds where no hdd_used is detected
+			if ( size > 0 && hddused == "na" ) {
+				size = sprintf( "%.1f", size )
+				print size "GB,-"
+			}
+			else if ( size > 0 && workingUsed > 0 ) {
+				diskUsed = workingUsed*100/size  # calculate used percentage
+				diskUsed = sprintf( "%.1f", diskUsed )
+				size = sprintf( "%.1f", size )
+				print size "GB," diskUsed "% used"
+			}
+			else {
+				print "NA,-" # print an empty array, this will be further handled in the print out function
+			}
+		}'  $DIR_PARTITIONS ) )
+	fi
+	IFS="$ORIGINAL_IFS"
+}

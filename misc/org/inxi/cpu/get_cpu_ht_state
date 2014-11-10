@@ -1,0 +1,31 @@
+#!/bin/bash
+
+VERSION="2010.12.10"
+STABILITY="ALPHA"
+
+################################################		TESTING SECTION
+## remove for release
+#INXI_HOME="$HOME/Applications/inxi/modules"
+#RESOURCES="$INXI_HOME/org/inxi/resources"
+
+#source $RESOURCES/inxi_globals
+############################################		END TESTING SECTION
+
+## check for HT
+## 'cat /sys/devices/system/cpu/cpu*/topology/thread_siblings_list' shows the HT core and it's parent
+## non-HT cpus won't have a $2, only HT will
+get_cpu_ht_state()
+{
+	gawk ' 
+		BEGIN {
+			FS=","
+			RS=" "
+			ORS=""
+		}{
+			core_type = $2
+		}; END {
+			if (core_type) {				
+				print "HT"
+			}
+		}' $CPU_THREAD_SIBLINGS
+}

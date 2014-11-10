@@ -1,0 +1,26 @@
+~# btrfs fi show
+Label: none  uuid: 9025bea6-b615-470a-8759-df1b13f63b52
+   Total devices 2 FS bytes used 948.87GiB
+   devid    1 size 931.51GiB used 804.03GiB path /dev/sdc
+   devid    2 size 931.51GiB used 804.01GiB path /dev/sdd
+
+
+Btrfs v3.14.1
+~# btrfs fi show --mounted
+Label: none  uuid: 9025bea6-b615-470a-8759-df1b13f63b52
+   Total devices 2 FS bytes used 948.87GiB
+   devid    1 size 931.51GiB used 804.03GiB path /dev/sdc
+   devid    2 size 931.51GiB used 804.01GiB path /dev/sdd
+
+Btrfs v3.14.1
+
+So if I unmount the BTRFS filesystem, the second command gives a null output:
+
+Code: [Select]
+
+~# umount /dev/sdc
+~# btrfs fi show --mounted
+Btrfs v3.14.1
+
+
+ 

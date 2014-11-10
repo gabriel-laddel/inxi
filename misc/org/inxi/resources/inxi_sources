@@ -1,0 +1,17 @@
+#!/bin/bash
+
+INXI_HOME="$HOME/Applications/inxi/modules"
+
+#######################################################		MODULES
+MODULES="$INXI_HOME/org/inxi/cpu"
+source $MODULES/get_cpu_core_freq
+source $MODULES/get_cpu_ht_state
+source $MODULES/get_cpu_physical_core_count
+source $MODULES/get_cpu_raw_cache
+source $MODULES/get_cpu_raw_core_count
+source $MODULES/get_cpu_core_alpha_count
+source $MODULES/get_cpu_brand
+source $MODULES/get_cpu_socket_count
+
+source $INXI_HOME/make_ban_lists
+source $INXI_HOME/get_cpu_multicore_data

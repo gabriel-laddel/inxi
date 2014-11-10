@@ -1,0 +1,207 @@
+#summary What the cpu flags shown by -C or -f (all flags) means.
+Thanks to [http://boincfaq.mundayweb.com/index.php?language=1&view=176 Jorden]
+----
+ * 3DNOW
+   * A multimedia extension created by AMD for its processors, based on MMX.
+
+ * 3DNOWEXT
+   * 3DNOW Extensions. Could also pertain to AMD's 3DNow! Enhanced/Extended.
+
+ * ACPI
+   * Advanced Configuration and Power Interface.
+
+ * APIC
+   * Advanced Programmable Interrupt Controller.
+
+ * CID+
+   * Most probaly this stands for Certified Interconnect Designer. (A certification for experienced PCB design professionals.)
+
+ * CLFSH/CLFlush
+   * Cache Line Flush.
+
+ * CMOV
+   * Conditional Move/Compare Instruction.
+
+ * CMP_Legacy
+   * Register showing the CPU is not Hyper-Threading capable.
+
+ * Constant_TSC
+   * on Intel P-4s, the TSC runs with constant frequency independent of cpu frequency when EST is used.
+
+ * CR8Legacy
+   * ??
+
+ * CX8
+   * CMPXCHG8B Instruction. (Compare and exchange 8 bytes. Also known as f00f (pronounced "foof"), an abbreviation of f0 0f c7 c8, is the hexadecimal encoding of an instruction that exhibits a design flaw in the majority of Intel Pentium, Pentium MMX, and Pentium OverDrive processors).
+
+ * CX16
+   * CMPXCHG16B Instruction. (CMPXCHG16B allows for atomic operations on 128-bit double quadword (or oword) data types. This is useful for high resolution counters that could be updated by multiple processors (or cores). Without CMPXCHG16B the only way to perform such an operation is by using a critical section.)
+
+ * DE
+   * Debugging Extensions.
+
+ * DS
+   * Debug Store.
+
+ * DS_CPL
+   * CPL qualified Debug Store.
+
+ * DTS
+   * Digital Thermal Sensor.
+     * or
+   * Debug Trace Store.
+
+ * EM64T
+   * Intel Extended Memory 64 Technology. Intel's derivative of AMD's 64bit CPU technology. Uses 64bit CPU registers and 64bit physical RAM addresses (page addresses) to support up to 1 tebibyte of RAM, which can later be extended (through future processor revisions) to 1 Pebibyte.
+
+ * EIST
+   * Enhanced Intel SpeedStep.
+
+ * FID
+   * Frequency IDentifier.
+
+ * FPU
+   * x87 Floating Point Unit built into the CPU. This is where most mathematically intense calculations take place. Used to be a separate chip on the 80486SX and earlier (called the 80487 or 80387, etc. 80486DX had FPU built-in as well). All Pentium CPUs and later have this functionality built in.
+
+ * FXSR
+   * FXSAVE/FXRSTOR. (The FXSAVE instruction writes the current state of the x87 FPU, MMX technology, Streaming SIMD Extensions, and Streaming SIMD Extensions 2 data, control, and status registers to the destination operand. The destination is a 512-byte memory location. FXRSTOR will restore the state saves).
+
+ * FXSR_OPT
+   * ??
+
+ * HT
+   * Hyper-Transport.
+
+ * HTT
+   * Hyper-Threading Technology. The ability to use one physical CPU as two separate logical CPUs by taking advantage of unused CPU registers during typical operation in an attempt to make the CPU more efficient. If multiple programs use the same registers by both logical CPUs, Hyper-threading can actually be known to slow down overall performance in some cases.
+
+ * LAHF_LM
+   * Load Flags into AH Register, Long Mode.
+
+ * LM
+   * Long Mode. (64bit Extensions).
+
+ * MCA
+   * Machine Check Architecture.
+
+ * MCE
+   * Machine Check Exception.
+
+ * MMX
+   * It is rumoured to stand for MultiMedia eXtension or Multiple Math or Matrix Math eXtension, but officially it is a meaningless acronym trademarked by Intel.
+
+ * MMXEXT
+   * MMX Extensions.
+
+ * MNI
+   * Modular Network Interface.
+     * or
+   * Merom New Instruction. See SSSE3.
+
+ * MON (MONITOR)
+   * CPU Monitor.
+
+ * MSR
+   * RDMSR and WRMSR Support.
+
+ * MTRR
+   * Memory Type Range Register.
+
+ * NNI
+   * Nehalem New Instructions (NNI). See SSE4.
+
+ * NX
+   * No eXecute. (the ability to not run code.)
+
+ * PAE
+   * Physical Address Extensions. PAE is the added ability of the IA32 processor to address more than 4 GB of physical memory using Intel's 36bit page addresses instead of the standard 32bit page addresses to access a total of 64gibibytes of RAM. Most AMD chips support PAE as well.
+
+   * PAE is the second method supported to access memory above 4 GB (PSE36 being the first); this method has been widely implemented. PAE maps up to 64 GB of physical memory into a 32-bit (4 GB) virtual address space using either 4-KB or 2-MB pages. The Page directories and the page tables are extended to 8 byte formats, allowing the extension of the base addresses of page tables and page frames to 24 bits (from 20 bits). This is where the extra four bits are introduced to complete the 36-bit physical address.
+
+   * Windows supports PAE with 4-KB pages. PAE also supports a mode where 2-MB pages are supported. Many of the UNIX operating systems rely on the 2 MB-page mode. The address translation is done without the use of page tables (the PDE supplies the page frame address directly).
+
+ * PAT
+   * Page Attribute Table.
+
+ * PBE
+   * Pending Break Encoding.
+
+ * PGE
+   * PTE Global Bit.
+
+ *  PNI
+    * Prescott New Instruction. This was the codename for SSE3 before it was released on the Intel Prescott processor (which was later added to the Pentium 4 family name).
+
+ * PSE
+   * Page Size Extensions. (See PSE36).
+
+ * PSE36
+   * Page Size Extensions 36. IA-32 supports two methods to access memory above 4 GB (32 bits). PSE (Page Size Extension) was the first method, which shipped with the Pentium II. This method offers a compatibility advantage because it kept the PTE (page table entry) size of 4 bytes. However, the only practical implementation of this is through a driver. This approach suffers from significant performance limitations, due to a buffer copy operation necessary for reading and writing above 4 GB. PSE mode is used in the PSE 36 RAM disk usage model.
+
+   * PSE uses a standard 1K directory and no page tables to extend the page size 4-MB (eliminating one level of indirection for that mode). The Page Directory Entries (PDE) contains 14 bits of address, and when combined with the 22-bit byte index, yields the 36 bits of extended physical address. Both 4-KB and 4-MB pages are simultaneously supported below 4 GB, with the 4-KB pages supported in the standard way.
+
+   * Note that pages located above 4 GB must use PSE mode (with 4-MB page sizes).
+
+ * SEP
+   * SYSENTER and SYSEXIT.
+
+ * SS
+    * Self-Snoop.
+
+ * SSE
+   * Streaming SIMD Extensions. (70 new Single Instruction, Multiple Data instructions built in in the CPU.) Debuted with the Intel Pentium III processor. AMD's first chip to support SSE was the Athlon XP.
+
+ * SSE2
+   * Streaming SIMD Extensions 2. (An additional 144 SIMDs.) Debuted with the Intel Pentium 4 processor. AMD's first chip to support SSE2 was the Athlon 64.
+
+ * SSE3
+   * Streaming SIMD Extensions 3. (An additional 13 instructions) Debuted with the "Prescott" revision Intel Pentium 4 processors. AMD's first chip to support SSE3 was the Athlon 64 "Venice" revision.
+
+ * SSSE3
+   * Supplemental Streaming SIMD Extension 3. (SSSE3 contains 16 new discrete instructions over SSE3. Each can act on 64-bit MMX or 128-bit XMM registers. Therefore, Intel's materials refer to 32 new instructions.) Debuted on Intel Core 2 Duo processors. No AMD chip supports SSSE3 yet.
+
+ * SSE4
+   * Streaming SIMD Extentions 4. Future Intel SSE revision adding 50 new instructions which will debut on Intel's upcoming "Nehalem" processor in 2008. Also known as "Nehalem New Instructions (NNI)".
+
+ * SVM
+   * Secure Virtual Machine. (AMD's virtualization extensions to the 64-bit x86 architecture.)
+
+ * SYSCALL
+   * System Call. (the mechanism used by an application program to request service from the operating system.)
+
+ * TNI
+   * Tejas New Instruction. See SSSE3.
+
+ * TM
+   * Thermal Monitor.
+
+ * TM2
+   * Thermal Monitor 2.
+
+ * TPR
+   * Task Priority Register.
+
+ * TS
+   * Thermal Sensor.
+
+ * TSC
+   * Time Stamp Counter. (is used whenever possible to further improve the accuracy of the speed measurement.)
+
+ * TTP
+   * Thermal Trip.
+
+ * VID
+   * Voltage IDentifier.
+
+ * VME
+   * Virtual-8086 Mode Enhancement.
+
+ * VMX
+   * An AltiVec floating point and integer SIMD instruction set. (Used by Apple, IBM, Motorola and Freescale Semiconductor.)
+
+ * XTPR
+   * TPR register chipset update control messenger. Part of the APIC code. 
+
+----
+To go to wiki list try clicking
+[http://code.google.com/p/inxi/w/list here]

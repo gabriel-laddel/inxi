@@ -1,0 +1,70 @@
+#!/bin/bash
+
+## main cpu data collector
+
+gawk '
+	BEGIN {
+		FS=": "
+		IGNORECASE=1
+	}
+	/^processor/ {
+		nr = $NF
+	}
+
+	/^model name|^cpu/ {
+		gsub(/'"$BAN_LIST_NORMAL"'/, "", $NF )
+		gsub(/'"$BAN_LIST_CPU"'/, "", $NF )
+		gsub(/,/, " ", $NF)
+		gsub(/^ +| +$/, "", $NF)
+		gsub(/ [ \t]+/, " ", $NF)
+		cpu_name = $NF
+	}
+
+	/^cpu MHz|^clock/ {
+		if (!frq_min) {
+			frq_min = $NF
+		}
+		else {
+			if ($NF < frq_min) {
+				frq_min = $NF
+			}
+		}
+
+		if ($NF > freq_max) {
+			freq_max = $NF
+		}
+		gsub(/MHZ/,"",$NF) ## clears out for cell cpu
+		gsub(/.00[0]+$/,".00",$NF) ## clears out excessive zeros
+		cpu_freq = $NF
+	}
+
+	/^flags/ {
+		cpu[nr, "flags"] = $NF
+	}
+
+	/^bogomips/ {
+		cpu[nr, "bogomips"] = $NF
+	}
+
+	/vendor_id/ {
+		gsub(/genuine|authentic/,"",$NF)
+		cpu[nr, "vendor"] = tolower( $NF )
+	}
+
+	END {
+		#if (!nr) { print ",,,"; exit } # <- should this be necessary or should bash handle that
+		for ( i = 0; i <= nr; i++ ) {
+			print cpu[i, "model"] "," cpu[i, "speed"] "," cpu[i, "cache"] "," cpu[i, "flags"] "," cpu[i, "bogomips"] ","  cpu[nr, "vendor"]
+		}
+		if (!min) {
+			print "not found"
+			exit
+		}
+		if (min != max) {
+			printf("Min:%s%s Max:%s%s\n", freq_min, "Mhz", freq_max, "Mhz")
+		}
+		else {
+			printf("%s %s\n", freq_max, "Mhz")
+		}
+	}
+' $FILE_CPUINFO

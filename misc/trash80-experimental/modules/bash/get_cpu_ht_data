@@ -1,0 +1,24 @@
+#!/bin/bash
+
+INXI_HOME="$HOME/Applications/inxi/modules"
+source $INXI_HOME/inxi_aliases
+source $INXI_HOME/inxi_exports
+
+## check for HT
+## 'cat /sys/devices/system/cpu/cpu*/topology/thread_siblings_list' shows the HT core and it's parent
+## non-HT cpus won't have a $2, only HT will
+get_cpu_ht_state()
+{
+	gawk ' 
+		BEGIN {
+			FS=","
+			RS=" "
+			ORS=" "
+		}{
+			core_type = $2
+		}; END {
+			if (core_type) {				
+				print "core_type:HT "
+			}
+		}' <<< $alias_cpu_ht
+}

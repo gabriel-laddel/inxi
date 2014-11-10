@@ -1,0 +1,233 @@
+#!/bin/bash
+
+## this will be replaced by trash80 stuff, working copy
+get_hard_drive_data()
+{
+	local disk='' i='' hdd_cap2='' hdd_cap1='' disk_capacity='' a_total_hdd=''
+	local hdd_model='' hdd_capacity='' hdd_used=''
+
+	i=1
+	for disk in /proc/ide/ide*/hd*
+	do
+		if [[ -e $disk/media && $( remove_erroneous_chars $disk/media ) = disk ]];then
+			# BUGFIX: Ran into a debian sarge kernel that did not have the "capacity" file in the hd* directories
+			# also, for PCI ata controller card, no capacity is listed
+			if [[ ! -e $disk/capacity ]];then
+				disk_capacity=0
+				break
+			fi
+			(( disk_capacity+=$( remove_erroneous_chars $disk/capacity ) ))
+			# this adds the (x) numbering in front of each disk found, and creates the full disk string
+			hdd_model="${hdd_model}${hdd_model+ ${C1}($i)${C2}}$( remove_erroneous_chars $disk/model )"
+			((i++))
+		fi
+	done
+
+	if [[ -e /proc/scsi/scsi ]];then
+		# Silly sata detection, will also pick up usb sticks. This will be redone.
+		IFS=$'\n'
+		a_total_hdd=($(gawk '
+		BEGIN { IGNORECASE=1 }
+		/host/ {
+			getline a[$0]
+			getline b[$0]
+		}
+		END {
+			for (i in a) {
+				if (b[i] ~ / *type: *direct-access.*/) {
+					#c=gensub(/^ *vendor: (.+) +model: (.+) +rev: (.+)$/,"\\1 \\2 \\3","g",a[i])
+					c=gensub( /^ *vendor: (.+) +model: (.+) +rev:.*$/,"\\1 \\2","g",a[i] )
+					gsub(/,/, " ", c)
+					gsub(/^ +| +$/, "", c)
+					gsub(/ [ \t]+/, " ", c)
+					#print a[i]
+					if (c ~ /\<flash\>|\<pendrive\>|memory stick|memory card/) {
+						continue
+					}
+					print c
+				}
+			}
+		}' /proc/scsi/scsi))
+		IFS="$ORIGINAL_IFS"
+
+		## note: the output part of this should be in the print hdd data function, not here
+		for (( i=0; i < ${#a_total_hdd[@]}; i++ ))
+		do
+			# this adds the (x) numbering in front of each disk found, and creates the full disk string
+			hdd_model="${hdd_model}${hdd_model+ ${C1}($(($i+1)))${C2}}${a_total_hdd[i]}"
+		done
+		if [[ -z $hdd_model ]];then
+			hdd_model=' Non Detected'
+		fi
+	fi
+
+	##print_screen_output "$hdd_model" ; exit
+	if ((disk_capacity));then
+		hdd_cap1="$((disk_capacity/2))"
+	fi
+	# See http://lanana.org/docs/device-list/devices-2.6+.txt for major numbers used below
+	hdd_cap2=$( gawk '$1 ~ /^(3|22|33|8)$/ && $2 % 16 == 0 {size+=$3} END {printf("%d\n",size)}' /proc/partitions )
+
+	##print_screen_output "hdd_cap1=\"$hdd_cap1\"  hdd_cap2=\"$hdd_cap2"" ; exit
+	hdd_capacity=0
+	for i in ${!hdd_cap*}
+	do
+		if [[ ${!i} -gt $hdd_capacity ]];then
+			hdd_capacity="${!i}"
+		fi
+	done
+	if [[ $hdd_capacity -gt 0 ]];then
+		hdd_used=$( df | gawk '
+		p {
+			if (/^\/dev\/(mapper\/|[hs]d[a-z][0-9]+)/) {
+				if (NF == 1) {
+					getline
+					if (NF == 5) {
+						c += $2
+					}
+					else {
+						next
+					}
+				}
+				else if (NF == 6) {
+					c += $3
+				}
+			}
+		}
+		/^Filesystem/ { p++ }
+		END {
+			print c
+		}' )
+		hdd_used="$((hdd_used*100/hdd_capacity))% used"
+		hdd_capacity="$(($hdd_capacity*1024/1000**3))GB"
+	else
+		hdd_used='N/A'
+		hdd_capacity='Unknown Capacity'
+	fi
+	A_HDD_DATA[0]=$hdd_model
+	A_HDD_DATA[1]=$hdd_capacity
+	A_HDD_DATA[2]=$hdd_used
+}
+
+
+print_hard_disk_data()
+{
+	local hdd_data='' partition_data='' a_partition_working=''
+
+	if [[ $VERBOSITY_LEVEL -ge 3 ]];then
+		hdd_data=$( create_print_line "Disks:" "${C1}HDD${C2}${hdd_model} ${C1}Size${C2} ${hdd_capacity} (${hdd_used})${CN}" )
+	else
+		hdd_data=$( create_print_line "Disks:" "${C1}HDD Size${C2} ${hdd_capacity} (${hdd_used})${CN}" )
+	fi
+	print_screen_output "$hdd_data"
+
+	if [[ $VERBOSITY_LEVEL -ge 4 ]];then
+		# set A_PARTITION_DATA
+		get_partition_data
+
+		for (( i=0; i < ${#A_PARTITION_DATA[@]}; i++ ))
+		do
+			IFS=","
+			a_partition_working=(${A_PARTITION_DATA[i]})
+			IFS="$ORIGINAL_IFS"
+			partition_data="$partition_data ${C1}ID:${C2} ${a_partition_working[0]} ${C1}size:${C2} ${a_partition_working[1]} ${C1}used:${C2} ${a_partition_working[2]} (${a_partition_working[3]})"
+		done
+		# hdd_data=$( create_print_line " " "${C1}Partition:${C2} ${root_home_data}" )
+		hdd_data=$( create_print_line " " "${C1}Partition:${C2}${partition_data}" )
+		print_screen_output "$hdd_data"
+	fi
+}
+
+print_short_data()
+{
+	local short_data='' i='' b_background_black='false'
+	local memory=$( get_memory_data )
+	local cpu_clock="${a_cpu_working[1]}" # old CPU3
+	# this gets that weird min/max final array item
+	local min_max_clock_nu=$(( ${#A_CPU_DATA[@]} - 1 ))
+	local min_max_clock=${A_CPU_DATA[$min_max_clock_nu]}
+
+	#set_color_scheme 12
+	if [[ $B_RUNNING_IN_SHELL == 'false' ]];then
+		for i in $C1 $C2 $CN
+		do
+			case "$i" in
+				"$GREEN"|"$WHITE"|"$YELLOW"|"$CYAN")
+					b_background_black='true'
+					;;
+			esac
+		done
+		if [[ $b_background_black == 'true' ]];then
+			for i in C1 C2 CN
+			do
+				## these need to be in quotes, don't know why
+				if [[ "${!i}" == "$NORMAL" ]];then
+					declare $i="${!i}15,1"
+				else
+					declare $i="${!i},1"
+				fi
+			done
+			#C1="${C1},1"; C2="${C2},1"; CN="${CN},1"
+		fi
+	fi
+	short_data="${C1}CPU${CN}[${C2}${cpu_core_count_string} ${cpu_model} ${C1}clocked at${C2} ${min_max_clock}${CN}] ${C1}Kernel${CN}[${C2}${current_kernel}${CN}] ${C1}Up${CN}[${C2}${FL2}${FL1}${up_time}${FL1}${CN}] ${C1}Mem${CN}[${C2}${FL2}${FL1}${memory}${FL1}${CN}] ${C1}HDD${CN}[${C2}${FL2}${FL1}${hdd_capacity}($hdd_used)${FL1}${CN}] ${C1}Procs${CN}[${C2}${FL2}${FL1}${processes}${FL1}${CN}]"
+
+	if [[ $SHOW_IRC -gt 0 ]];then
+		short_data="${short_data} ${C1}Client${CN}[${C2}${IRC_CLIENT}${IRC_CLIENT_VERSION}${CN}]"
+	fi
+	short_data="${short_data} ${CN}:: ${C1}$SCRIPT_NAME ${C2}v:$SCRIPT_VERSION_NUMBER${CN}"
+	if [[ $SCHEME -gt 0 ]];then
+		short_data="${short_data} $NORMAL"
+	fi
+	print_screen_output "$short_data"
+}
+
+## main function to print out, master for all sub print functions.
+## note that it passes local variable values on to its children,
+## and in some cases, their children, with lspci_data
+print_it_out()
+{
+	## note: remember that in bash, child functions inherit local variables
+	local current_kernel=$( uname -a | gawk '{print $1,$3,$(NF-1)}' )
+	local processes="$(( $( ps aux | wc -l ) - 1 ))"
+	# set A_CPU_CORE_DATA
+	get_cpu_core_count
+	local cpu_core_count_string="${A_CPU_CORE_DATA[1]}"
+	local cpu_core_count=${A_CPU_CORE_DATA[0]}
+	local lspci_data='' ## only for verbose needed
+	local up_time="$( get_uptime )"
+	## assemble data for output
+	# load A_HDD_DATA
+	get_hard_drive_data
+	## note: if hdd_model is declared prior to use, whatever string you want inserted will
+	## be inserted first. In this case, it's desirable to print out (x) before each disk found.
+	local hdd_model=${A_HDD_DATA[0]}
+	local hdd_capacity=${A_HDD_DATA[1]}
+	local hdd_used=${A_HDD_DATA[2]}
+	# load A_CPU_DATA
+	get_cpu_data
+
+	IFS=","
+	local a_cpu_working=(${A_CPU_DATA[0]})
+	IFS="$ORIGINAL_IFS"
+	local cpu_model="${a_cpu_working[0]}"
+
+	case "$VERBOSITY_LEVEL" in
+		0)	print_short_data
+			;;
+		*)	lspci_data="$( get_lspci_data )"
+			print_intro_data
+			print_cpu_data
+			print_gfx_data
+			if [[ $VERBOSITY_LEVEL -ge 6 ]];then
+				print_audio_data
+			fi
+			if [[ $VERBOSITY_LEVEL -ge 2 ]];then
+				print_networking_data
+			fi
+
+			print_hard_disk_data
+			print_system_data
+			;;
+	esac
+}

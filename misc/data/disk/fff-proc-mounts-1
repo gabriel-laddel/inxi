@@ -1,0 +1,17 @@
+[fredforfaen@pluto by-label]$ cat /proc/mounts
+rootfs / rootfs rw 0 0
+/dev/root / ext2 rw,noatime,errors=continue 0 0
+none /dev ramfs rw 0 0
+none /proc proc rw 0 0
+none /sys sysfs rw 0 0
+none /dev/pts devpts rw,mode=600 0 0
+none /dev/shm tmpfs rw 0 0
+tmpfs /var/log tmpfs rw,size=1024k 0 0
+gvfs-fuse-daemon /home/fredforfaen/.gvfs fuse.gvfs-fuse-daemon rw,nosuid,nodev,user_id=1000,group_id=100 0 0
+/dev/sdc1 /media/disk vfat rw,nosuid,nodev,uid=1000,fmask=0022,dmask=0022,codepage=cp437,iocharset=iso8859-1 0 0
+/dev/sdb1 /media/My\040Passport vfat rw,nosuid,nodev,uid=1000,fmask=0022,dmask=0022,codepage=cp437,iocharset=iso8859-1 0 0
+mars:/mnt/disk2 /mnt/mars/usbdisk2 nfs rw,vers=3,rsize=131072,wsize=131072,namlen=255,hard,nointr,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.4,mountvers=3,mountproto=tcp,addr=192.168.1.4 0 0
+mars:/home /mnt/mars/home nfs rw,vers=3,rsize=131072,wsize=131072,namlen=255,hard,nointr,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.4,mountvers=3,mountproto=tcp,addr=192.168.1.4 0 0
+mars:/mnt/disk1 /mnt/mars/usbdisk1 nfs rw,vers=3,rsize=131072,wsize=131072,namlen=255,hard,nointr,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.1.4,mountvers=3,mountproto=tcp,addr=192.168.1.4 0 0
+[fredforfaen@pluto by-label]$ 
+

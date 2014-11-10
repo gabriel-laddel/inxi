@@ -1,0 +1,81 @@
+=Summary How to install inxi using a variety of methods:=
+
+I can't track all the Linux distributions, these are the ones I know about as of 2014-04-13. 
+
+Please note that inxi will always support all Linux distributions as long as they have gawk and the other recommended applications, and inxi dependencies will never require the latest of anything, so you can always safely install inxi on a system then update it to latest inxi version no matter what. In other words, if inxi runs the first time you install it, after updating dependencies, inxi will always run on your system, as long as the project remains in these hands.
+
+If you use your distributions package management system to install inxi, then you will have the man pages, if you install it manually, then just run inxi -U one time and it will grab the man page as well during the update.
+
+Because inxi is spreading widely through the distribution ecosystem, always first check to see if a primary or secondary repository for your distribution has inxi before installing it manually, though some distributions have seriously out of data inxi versions, so you might want to install the package, then update it manually with -U. See the [inxiFAQs] page for directions on how to override distribution blocks of -U.
+
+See bottom of page for directions on setting up Konversation links so you can just type in /inxi [options] to show inxi in IRC.
+
+ * As of Debian Jesse, Debian Sid/Testing - inxi is in apt, so just do: 
+ {{{ 
+ apt-get install inxi 
+ }}}
+ If in doubt, just search for it in apt, it's there, install it.
+ {{{ 
+ apt-cache search inxi 
+ }}}
+ A few other Debian based distributions also package inxi, or include the inxi  installer in their base systems, like Mint.
+ * Ubuntu users, check if it's in your basic repositories with this command:
+ {{{ 
+ apt-cache search inxi 
+ }}}
+  If it is, just install it with apt. If it is not, add the unit193 repository like so:
+  {{{
+  sudo apt-add-repository ppa:unit193/inxi && apt-get update
+  ## then just install inxi
+  apt-get install inxi
+  }}}
+ * Arch Linux users: inxi is in the Community Repos, which most Arch installs have enabled by default, so just install inxi as you normally would any other package. Arch maintainer does a very good job keeping up with latest inxi versions, so you can usually rely on his stuff being up to date.
+ * Mageia/Mandriva/OpenSuse also have inxi in their repositories I believe, though I'm not certain.
+ * Fedora as of 19 has inxi, and it's also in EPEL, I believe the next major Redhat release (next as of 2014-04-13) will have inxi, but you can install it via EPEL for now in Redhat/Centos etc.
+ * For other distros, check your repositories first before manually installing it, many have it available either in the main repositories, or as a third party repository.
+ * For Debian Wheezy or older systems, I rocommend using the direct download install via wget, but if you must use apt to install it, use the Unit193 repository (Unit193 is the actual maintainer of the Debian inxi package), which is also the most current one available for apt systems usually. Add the following line (first of course check to see if you don't already have inxi available, or that you have an inxi repo.:
+  {{{
+  echo 'deb http://ppa.launchpad.net/unit193/inxi/ubuntu trusty main' > /etc/apt/sources.list.d/unit193-inxi.list
+  }}}
+  Alternately, siduction inxi is also pretty current usually, so you can use theirs instead if you want a strictly Debian inxi package, though there should be basically no difference, but siduction does a good job  too as 2014-04-13:
+  {{{
+  echo 'deb http://packages.siduction.org/base unstable main' > /etc/apt/sources.list.d/siduction.list
+  }}}
+  then just update and install inxi:
+  {{{
+  apt-get update
+  apt-get install inxi
+  }}}
+----
+ * For smxi users, follow the steps here: [http://smxi.org/site/install.htm#inxi] But generally if you use Debian use the apt version unless you want to make sure you always have the latest inxi, this would be particularly relevant in Stable. 
+----
+ * For most others, use (except in Arch or Pardus), as root:
+   {{{
+   cd /usr/local/bin && wget -Nc smxi.org/inxi && chmod +x inxi
+   }}}
+ * For Arch and Pardus manual inxi install, use, as root:
+   {{{
+   cd /usr/bin && wget -Nc smxi.org/inxi && chmod +x inxi
+   }}}
+----
+ * For usage in Konversation (as root):
+
+   * KDE3:
+{{{
+ln -s /usr/local/bin/inxi /usr/share/apps/konversation/scripts/inxi
+}}}
+
+   * KDE4:
+{{{
+ln -s /usr/local/bin/inxi /usr/share/kde4/apps/konversation/scripts/inxi
+}}}
+----
+
+If you did not use a distribution installed package to install inxi, then you might want to run inxi again to update the man pages as well, with this command:
+inxi -U
+This will then also install the man pages. Please do not use that option in general if you installed inxi from your distribution's repositories, the packagers should have included the man files in the inxi package. If in doubt, first try this command: man inxi
+
+If nothing happens, you don't have the man page, which means you have either an old install, or you installed it manually. In that case, just upgrade it with -U and everything should be updated automatically. If the man page does not automatically update when you run -U, it means you have an older inxi, and need to use -U again, so the new version can then bring in the man page.
+----
+To go to wiki list  try clicking
+[http://code.google.com/p/inxi/w/list here]

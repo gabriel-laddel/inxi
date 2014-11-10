@@ -1,0 +1,26 @@
+#!/bin/bash
+
+VERSION="2010.12.10"
+STABILITY="ALPHA"
+
+################################################		TESTING SECTION
+## remove for release
+#INXI_HOME="$HOME/Applications/inxi/modules"
+#RESOURCES="$INXI_HOME/org/inxi/resources"
+
+#source $RESOURCES/inxi_globals
+#source $RESOURCES/inxi_exports
+############################################		END TESTING SECTION
+
+get_cpu_multicore_data() {
+	local type
+	local num_of_sockets=$1
+	local num_of_real_cores=$2
+	
+	if [[ $num_of_sockets -lt $num_of_real_cores ]]; then
+		type='MCP'
+	elif [[ $num_of_sockets -eq $num_of_real_cores ]]; then
+		type='UP'
+	fi
+	echo $type
+}

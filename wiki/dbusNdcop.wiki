@@ -1,0 +1,18 @@
+*KDE Konversation information.  Moving from dcop(qt3/KDE3) to dbus(qt4/KDE4)*
+----
+  
+  * ||dcop and dbus...|| these talk back to Konversation from this script ||
+	
+  * ||Scripting info..|| [http://konversation.berlios.de/docs/scripting.html] ||
+    ||................|| [http://www.kde.org.uk/apps/konversation/] ||
+
+  * ||dbus info.......|| [http://dbus.freedesktop.org/doc/dbus-tutorial.html] ||
+  * ||view dbus info..|| [https://fedorahosted.org/d-feet/]||
+    ||................|| or run qdbus||
+  * ||Konvi dbus/usage|| `qdbus org.kde.konversation /irc say <server> <target-channel> <output>`||
+
+  * ||Python usage....|| [http://wiki.python.org/moin/DbusExamples]||
+
+----
+To go to wiki list  try clicking
+[http://code.google.com/p/inxi/w/list here]

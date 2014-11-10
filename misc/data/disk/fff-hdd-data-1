@@ -1,0 +1,33 @@
+[root@centserver log]# df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/VolGroup00-LogVol00
+                      225G  3,2G  210G   2% /
+/dev/hda1              99M   18M   77M  19% /boot
+tmpfs                 252M     0  252M   0% /dev/shm
+[root@centserver log]# cat /proc/mounts
+rootfs / rootfs rw 0 0
+/dev/root / ext3 rw,data=ordered 0 0
+/dev /dev tmpfs rw 0 0
+/proc /proc proc rw 0 0
+/sys /sys sysfs rw 0 0
+/proc/bus/usb /proc/bus/usb usbfs rw 0 0
+devpts /dev/pts devpts rw 0 0
+/dev/hda1 /boot ext3 rw,data=ordered 0 0
+tmpfs /dev/shm tmpfs rw 0 0
+none /proc/sys/fs/binfmt_misc binfmt_misc rw 0 0
+sunrpc /var/lib/nfs/rpc_pipefs rpc_pipefs rw 0 0
+/etc/auto.misc /misc autofs rw,fd=6,pgrp=4644,timeout=300,minproto=5,maxproto=5,indirect 0 0
+-hosts /net autofs rw,fd=12,pgrp=4644,timeout=300,minproto=5,maxproto=5,indirect 0 0
+[root@centserver log]# cat /proc/partitions
+major minor  #blocks  name
+
+   3     0  244198584 hda
+   3     1     104391 hda1
+   3     2  244091610 hda2
+ 253     0  243040256 dm-0
+ 253     1    1048576 dm-1
+[root@centserver log]# ls -l /dev/disk/by-uuid
+totalt 0
+lrwxrwxrwx 1 root root 10 feb 28 17:55 866f2f80-708a-45d1-90ca-7f116f528d4d -> ../../hda1
+[root@centserver log]# 
+

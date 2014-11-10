@@ -1,0 +1,27 @@
+#summary Special programming notes, resources, and information.
+=Resources we have found useful for developing inxi=
+==Gawk and Bash==
+ * gawk arrays: http://www.math.utah.edu/docs/info/gawk_12.html
+ * Bash string padding with sed: http://ideatrash.net/2011/01/bash-string-padding-with-sed.html 
+   This is the important part of the code:
+   {{{
+Left justify with string length of 80
+sed -e :a -e 's/^.\{1,80\}$/& /;ta'
+Right justify with string length of 80
+sed -e :a -e 's/^.\{1,80\}$/ &/;ta'
+Center with string length of 80.
+sed -e :a -e 's/^.\{1,80\}$/ & /;ta'
+}}}
+ * Bash Regular Expressions: http://analyser.oli.tudelft.nl/regex/index.html.en
+   More Bash regex: http://www.faqs.org/docs/abs/HTML/regexp.html
+ * Bash special characters and variables: http://tldp.org/LDP/abs/html/special-chars.html
+ * Bash parameter substitution: http://tldp.org/LDP/abs/html/parameter-substitution.html
+==Information About Changing Packages for Recommends/Dependencies==
+Things change, and inxi has to adjust and change with them or it won't work.
+
+ * Moving from the venerable net-tools, parent of ifconfig, to iproute/iproute2, parent of ip, which replaces ifconfig as far as inxi is concerned:
+   http://lists.debian.org/debian-devel/2009/03/msg00780.html
+
+----
+To go to wiki list try clicking
+[http://code.google.com/p/inxi/w/list here]

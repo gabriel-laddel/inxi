@@ -1,0 +1,38 @@
+#!/bin/bash
+
+VERSION="2010.12.10"
+STABILITY="ALPHA"
+
+################################################		TESTING SECTION
+## remove for release
+#INXI_HOME="$HOME/Applications/inxi/modules"
+#MODULES="$INXI_HOME/org/inxi/cpu"
+#RESOURCES="$INXI_HOME/org/inxi/resources"
+
+#source $RESOURCES/inxi_globals
+#source $RESOURCES/inxi_dehash
+
+#source $MODULES/get_cpu_physical_core_count
+#source $MODULES/get_cpu_ht_state
+############################################		END TESTING SECTION
+
+
+get_cpu_brand(){
+
+	gawk '
+		BEGIN {
+			FS = ": "
+			IGNORECASE = 1
+		}
+		/^model name|^cpu model/ {
+			gsub(/'"$BAN_LIST_NORMAL"'/, "", $NF )
+			gsub(/'"$BAN_LIST_CPU"'/, "", $NF )
+			gsub(/,/, " ", $NF)
+			gsub(/^ +| +$/, "", $NF)
+			gsub(/ [ \t]+/, " ", $NF)
+			cpu_name = $NF
+		}
+		END {
+			printf "%s", cpu_name
+		} ' $FILE_CPUINFO
+}

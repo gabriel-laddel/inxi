@@ -1,0 +1,40 @@
+#!/bin/bash
+
+VERSION="2010.12.11"
+STABILITY="ALPHA"
+
+################################################		TESTING SECTION
+## remove for release
+#INXI_HOME="$HOME/Applications/inxi/modules"
+#RESOURCES="$INXI_HOME/org/inxi/resources"
+
+#source $RESOURCES/inxi_globals
+############################################		END TESTING SECTION
+
+## return the total number of all cpu sockets
+	# for each kernel identified cpu,
+	# check to see if the id's are changed
+	# each new id is another socket
+get_cpu_socket_count() {
+
+	local pysical_cpu_count=$1
+	local old_cpu_socket=-1
+	local socket_counter=0
+	
+	for (( k=0; k<$pysical_cpu_count; k++ )); do
+		socket_id=$(gawk -v key="${k}" '
+			BEGIN {								
+				ORS = " "
+			}{
+				this_cpu_socket = $0 / 1000
+			} END {
+				printf "%s", this_cpu_socket
+			}' $CPU_SYS_DATA/cpu$k$CPU_PHYSICAL_ID)
+					
+		if [[ $old_cpu_socket != $socket_id ]]; then
+			old_cpu_socket=$socket_id
+			socket_counter=$((socket_counter+1))
+		fi			
+	done
+	echo $socket_counter
+}

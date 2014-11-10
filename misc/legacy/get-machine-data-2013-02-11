@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+
+# this is taken from inxi 1.8.36. This function was rewritten in the dmidecode section
+# but I want to save this logic
+
+get_machine_data()
+{
+	eval $LOGFS
+	local temp_array='' separator='' id_file='' file_data='' array_string=''
+	local id_dir='/sys/class/dmi/id/' dmi_name='' dmi_data='' 
+	local machine_files="
+	sys_vendor product_name product_version product_serial product_uuid 
+	board_vendor board_name board_version board_serial 
+	bios_vendor bios_version bios_date 
+	"
+	local dmi_names="
+	system-manufacturer system-product-name system-version system-serial-number system-uuid 
+	baseboard-manufacturer baseboard-product-name baseboard-version baseboard-serial-number 
+	bios-vendor bios-version bios-release-date 
+	"
+	if [[ $B_EXTRA_EXTRA_DATA == 'true' ]];then
+		machine_files="$machine_files
+		chassis_vendor chassis_type chassis_version chassis_serial
+		"
+		dmi_names="$dmi_names
+		chassis-manufacturer chassis-type chassis-version chassis-serial-number
+		"
+	fi
+	if [[ -d $id_dir ]];then
+		for id_file in $machine_files
+		do
+			file_data=''
+			if [[ -r $id_dir$id_file ]];then
+				file_data=$( gawk '
+				BEGIN {
+					IGNORECASE=1
+				}
+				{
+					gsub(/'"$BAN_LIST_NORMAL"'/, "", $0)
+					gsub(/,/, " ", $0)
+					# yes, there is a typo in a user data set, unknow
+					# Base Board Version|Base Board Serial Number
+					# Chassis Manufacturer|Chassis Version|Chassis Serial Number
+					# System manufacturer|System Product Name|System Version
+					# To Be Filled By O.E.M.
+					sub(/^Base Board .*|^Chassis .*|.*O\.E\.M\..*|.*OEM.*|^Not .*|^System .*|.*unknow.*|.*N\/A.*|none|^To be filled.*/, "", $0) 
+					gsub(/bios|acpi/, "", $0)
+					sub(/http:\/\/www.abit.com.tw\//, "Abit", $0)
+					gsub(/^ +| +$/, "", $0)
+					gsub(/ [ \t]+/, " ", $0)
+					print $0
+				}' < $id_dir$id_file
+				)
+			fi
+			array_string="$array_string$separator$file_data"
+			separator=','
+		done
+	else
+		get_dmidecode_data
+		if [[ -n $DMIDECODE_DATA ]];then
+			if [[ $B_ROOT == 'true' ]];then
+				# this handles very old systems, like Lenny 2.6.26, with dmidecode, but no data
+				if [[ -n $( grep -i 'no smbios or dmi' <<< "$DMIDECODE_DATA" ) ]];then
+					array_string='dmidecode-no-smbios-dmi-data'
+				# please note: only dmidecode version 2.11 or newer supports consistently the -s flag
+				else
+					for dmi_name in $dmi_names
+					do
+			# 			echo "$dmi_name" >&2
+						dmi_data=''
+						dmi_data=$( dmidecode -s $dmi_name | gawk '
+							BEGIN {
+								IGNORECASE=1
+							}
+							{
+								gsub(/'"$BAN_LIST_NORMAL"'/, "", $0)
+								gsub(/,/, " ", $0)
+								# yes, there is a typo in a user data set, unknow
+								# Base Board Version|Base Board Serial Number
+								# Chassis Manufacturer|Chassis Version|Chassis Serial Number
+								# System manufacturer|System Product Name|System Version
+								# To Be Filled By O.E.M.
+								sub(/^Base Board .*|^Chassis .*|.*O\.E\.M\..*|.*OEM.*|^Not .*|^System .*|.*unknow.*|.*N\/A.*|none|^To be filled.*/, "", $0) 
+								gsub(/bios|acpi/, "", $0)
+								sub(/http:\/\/www.abit.com.tw\//, "Abit", $0)
+								gsub(/^ +| +$/, "", $0)
+								gsub(/ [ \t]+/, " ", $0)
+								print $0
+							}' )
+						array_string="$array_string$separator$dmi_data"
+						separator=','
+					done
+				fi
+			else
+				array_string='dmidecode-non-root-user'
+			fi
+		fi
+	fi
+	IFS=','
+	A_MACHINE_DATA=( $array_string )
+	IFS="$ORIGINAL_IFS"
+	temp_array=${A_MACHINE_DATA[@]}
+	# echo ${temp_array[@]}
+	log_function_data "A_MACHINE_DATA: $temp_array"
+	eval $LOGFE
+}

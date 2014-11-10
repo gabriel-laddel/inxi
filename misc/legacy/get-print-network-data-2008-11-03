@@ -1,0 +1,71 @@
+#!/bin/bash
+
+## create array of network cards
+get_networking_datax()
+{
+	IFS=$'\n'
+	A_NETWORK_DATA=( $( echo "$lspci_data" | C1=${C1} C2=${C2} gawk '
+	BEGIN { IGNORECASE=1 }
+	/^[0-9a-f:.]+ (ethernet|network) (controller|bridge)/ || /^[0-9a-f:.]+ [^:]+: .*(ethernet|network).*$/ {
+		nic=gensub(/^[0-9a-f:.]+ [^:]+: (.+)$/,"\\1","g",$0)
+		gsub(/realtek semiconductor/, "Realtek", nic)
+		gsub(/davicom semiconductor/, "Davicom", nic)
+		gsub(/,/," ", nic)
+		gsub(/'"$A_NORMAL_BANS"'/, "", nic); gsub(/ [ ]+/," ", nic); gsub(/^ +| +$/,"", nic) 
+		# The doublequotes above are necessary because of the pipes in the variable.
+		eth[nic]++
+		while (getline && !/^$/) {
+			if (/I\/O/) ports[nic]=ports[nic]$4" "
+		}
+	}
+	
+	END {
+		j=0
+		for (i in eth) {
+			if (eth[i]>1) {
+				a[j]=eth[i]"x "i
+				if (ports[i] != "") a[j]=a[j] " - At ports: " ports[i]
+			}
+			else {
+				a[j]=i
+				## note, some glitch in awk makes the second port number cut off if ENVIRON["C2"] is used
+				## if (ports[i] != "") a[j]=a[j] ENVIRON["C1"] " At Port:" ENVIRON["C2"] ports[i]
+				if (ports[i] != "") {
+					a[j]=a[j] " - At port: " ports[i] 
+				}
+			}
+			j++
+		}
+		j=0
+		while (a[j]) {
+			print a[j]
+			j++
+		}
+	}
+	') )
+	IFS="$ORIGINAL_IFS"
+}
+
+
+print_networking_datax()
+{
+	local i='' card_one='Card-1 ' network_data=''
+	
+	# set A_NETWORK_DATA
+	get_networking_data
+	
+	if [[ -n ${A_NETWORK_DATA[@]} ]];then
+		if [[ ${#A_NETWORK_DATA[@]} -le 1 ]];then
+			card_one='Card '
+		fi
+		i=0
+		network_data=$( create_print_line "Network:" "${C1}$card_one${C2}${A_NETWORK_DATA[i]} " )
+		print_screen_output "$network_data"
+		while [[ -n ${A_NETWORK_DATA[++i]} ]]
+		do
+			network_data=$( create_print_line " " "${C1}Card-$(($i+1))${C2} ${A_NETWORK_DATA[i]}" )
+			print_screen_output "$network_data"
+		done
+	fi
+}
+

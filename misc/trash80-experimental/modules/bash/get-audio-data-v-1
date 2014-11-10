@@ -1,0 +1,60 @@
+#!/bin/bash
+
+get_audio_data-bu()
+{
+	local i='' alsa_data='' alsa_driver='' device_count=''
+
+	IFS=$'\n'
+	# this is awkward, but it should work, ie, if there's only one sound card found
+	# have to filter out modems because they also appear on asound/cards
+	device_count=$( egrep -ic '(multimedia audio controller|audio device)' <<< "$lspci_data" )
+	if [[ $device_count -eq 1 && -f /proc/asound/cards ]];then
+		alsa_driver=$( gawk -F ']: ' '
+		{ IGNORECASE=1 }
+		$1 !~ /modem/ && $2 !~ /modem/ {
+			driver=gensub( /^(.+)( - )(.+)$/, "\\1", 1, $2 )
+			gsub(/^ +| +$/,"",driver)
+			if ( driver != "" ){
+				print driver
+			}
+		}'  /proc/asound/cards )
+	fi
+	# this is to safeguard against line breaks from results > 1, which if inserted into following
+	# array will create a false array entry. This is a hack, not a permanent solution.
+	alsa_driver=$( echo $alsa_driver )
+	# this isn't perfect, but if one card was found in lscpci, we're passing
+	# this array constructor that card driver name. This should work for most people
+	# but if you can think of anything better, please post the code patch
+	A_AUDIO_DATA=( $( echo "$lspci_data" | gawk -v alsaDriver="$alsa_driver" -F': ' '
+	{ IGNORECASE=1 }
+	/multimedia audio controller|audio device/ {
+		gsub(/'"$BAN_LIST_NORMAL"'/, "", $NF )
+		gsub(/,/," ",$NF)
+		gsub(/^ +| +$/,"",$NF)
+		gsub(/ [ \t]+/," ",$NF)
+		if ( alsaDriver != "" ){
+			alsaDriver=","alsaDriver
+		}
+		print $NF alsaDriver
+	}' ) )
+
+	# c=gensub( /^ *vendor: (.+) +model: (.+) +rev:.*$/, "\\2", "g", a[i] )
+	# in case of failure of first check do this instead
+	if [[ ${#A_AUDIO_DATA[@]} -eq 0 && -f /proc/asound/cards ]];then
+		A_AUDIO_DATA=( $( gawk -F ']: ' '
+		{ IGNORECASE=1 }
+		$1 !~ /modem/ && $2 !~ /modem/ {
+			card=gensub( /^(.+)( - )(.+)$/, "\\3", 1, $2 )
+			driver=gensub( /^(.+)( - )(.+)$/, "\\1", 1, $2 )
+			if ( card != "" ){
+				print card","driver
+			}
+		}'  /proc/asound/cards ) )
+	fi
+	IFS="$ORIGINAL_IFS"
+
+	# handle cases where card detection fails, like in PS3, where lspci gives no output, or headless boxes..
+	if [[ ${#A_AUDIO_DATA[@]} -eq 0 ]];then
+		A_AUDIO_DATA[0]='Failed to Detect Sound Card!'
+	fi
+}

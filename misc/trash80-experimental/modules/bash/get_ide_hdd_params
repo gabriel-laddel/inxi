@@ -1,0 +1,44 @@
+#!/bin/bash
+# get HDD params
+
+remove_erroneous_chars()
+{
+## this removes newline and pipes
+## RS is input record separator
+## gsub is substitute;
+	gawk 'BEGIN { RS="" } { gsub(/\n$/,"");         ## (newline; end of string) with (nothing)
+									gsub(/\n/," ");         ## (newline) with (space)
+									gsub(/^ *| *$/, "");    ## (pipe char) with (nothing)
+									gsub(/  +/, " ");       ## ( +) with (space)
+									gsub(/ [ ]+/, " ");     ## ([ ]+) with (space)
+									gsub(/^ +| +$/, "");    ## (pipe char) with (nothing)
+									printf $0 }' "$1"       ## prints (returns) cleaned input
+}
+
+get_ide_hdd_params() ## do not directly access this function, use the function verify_ide_drives_exist !!
+{
+	if [ -e /proc/ide/ide0 ];then  #check for the presense of ide folder found on most older non-sata systems (libata for info)
+		for I in /proc/ide/ide*/hd*; do
+				if [[ -e $I/media ]]; then
+					if [[ $(remove_erroneous_chars $I/media) = disk ]]; then
+						if [[ -e $I/capacity ]]; then ## /capacity is not in all systems
+								((hdd_drive_capacity+=$(remove_erroneous_chars $I/capacity)/1000000))
+						else
+								hdd_drive_capacity=0
+						fi
+					fi
+				ide_drives="${ide_drives}${ide_drives+,}$(remove_erroneous_chars $I/model)"
+				fi
+		done
+		echo "IDE: "$ide_drives, " Capacity: "$hdd_drive_capacity"""MB"
+	fi
+}
+
+verify_ide_drives_exist()
+{
+if [[ -n $(get_ide_hdd_params) ]]; then
+	get_ide_hdd_params
+fi
+}
+
+verify_ide_drives_exist

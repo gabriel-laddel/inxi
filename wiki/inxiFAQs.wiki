@@ -1,0 +1,106 @@
+#summary While nobody may have asked these questions, it's still nice to know the answer if you were wondering.
+
+= inxi FAQs =
+
+Some things are not obvious, so here's a few questions and answers.
+
+
+== List of Frequently Asked (or 'Could be Asked') Questions ==
+-----
+===Q: I want to update to latest svn inxi version but I get an error message saying updates have been disabled===
+
+*A:* That's right, if you installed inxi using a Debian / Ubuntu package, and maybe other repositories too, some distributions have a rule that things like -U should not exist because the package manager should always do the updating. This is a fine rule, but sometimes you really just need or want a newer inxi version, either for testing, or because of a new feature, or a fixed bug.
+
+Luckily, it's super easy to fix this, simply run this command, as root:
+
+{{{
+touch /etc/inxi.conf && echo 'B_ALLOW_UPDATE=true' >> /etc/inxi.conf
+
+# if your system requires sudo (root disabled), then do this:
+# (I think, not sure if you need a sudo on the echo item too)
+sudo touch /etc/inxi.conf && echo 'B_ALLOW_UPDATE=true' >> /etc/inxi.conf
+}}}
+What this does is create the /etc/inxi.conf file if it's not present, though it probably is, then add as the last line the reset of the variable.
+
+Alternately, you can open /etc/inxi.conf (check first to see if it exists with *cat /etc/inxi.conf* if you see the variable there, then do the following. If you do not see it, use the above procedure, they probably edited inxi itself) and simply change:
+{{{
+B_ALLOW_UPDATE='false'
+## to
+B_ALLOW_UPDATE='true'
+}}}
+
+then when you try to update inxi with: *inxi -U* as root, everything will be fine. You also get a new man page with this update.
+
+NOTE: remember, however, that the package management system does NOT know about this change, so next time you upgrade your system, whatever current inxi version is in the repo if it's been updated since your last upgrade will replace your existing one, which you can tell because the inxi version number will change.
+
+But this edit will stay 'sticky', and you can then just update inxi as usual, the preference set here will not be replaced, at least not usually.
+-----
+===Q: inxi output piped to 'more' looks weird===
+
+If I use *more* to give convenient screen height blocks of output
+{{{
+inxi <options> | more
+}}} 
+the lines don't wrap correctly, long lines get shoved to the next line   the terminal/console output, but it's messy.
+
+*A:* That's correct, I noticed this recently when testing long line output in shell. There is nothing I know of that can fix this for 'more', what is happening, I think, is that "more" is ignoring the color code characters when calculating the line width, instead of just using the width of the actual text as it handles the length of each line. In other words, if the output is 100 characters, *more* thinks that the output is actually 100+all the characters of the color code variables, which will then make the bad wraps as more tries to handle that. I had no idea *more* could create this type of issue, but apparently it can. 
+
+The solution in this case is to set the inxi colors to -c 0, for example: 
+{{{
+inxi -v7 -c 0
+}}}
+Then the output will wrap neatly as intended since there are no longer any color code characters in the physical string. This is useful to remember if you are out of X, in a terminal with very narrow width, for example default 80 columns.
+
+My feeling is that this may be a bug in *more* but you never know, it could be intended behavior, but why anyone would intend to break the output of a line is beyond me.
+-----
+===Q: The inxi help menu shoots off the screen when I run it.===
+
+Yes, it's long. Not as long as the man page, but it's long. If you are out of X and can't scroll your terminal client (like Konsole, Xterm, Aterm, Gnome-terminal), all you have to do is use the *more* command, like so:
+{{{
+inxi -Fxx -fr | more
+}}} 
+As you read down the screen, you'll note the help output stopped at exactly one screen height. To get to the next screen, just hit your space bar, and it will show the next screen of output. Or to move down one line at a time, use your *enter* key, that moves it one line at a time.
+
+Now you can scroll down at your own pace.
+
+They claim *more* allows scrolling up again, but it doesn't work on my installs.
+
+If you want to go up and down the menu, use *less*. The scroll down options are the same as *more*, but the up options also work.
+
+{{{
+inxi -Fxx -fr | less
+}}} 
+
+To scroll back up, hit the *b* key, or *ctrl + b* - *u* or *ctrl + u* goes up half a screen. You can also use a number for *u*, like: *5u*
+
+If you use a number, that will become the new default up count of lines to go up with each *u*.
+
+See: *man less* 
+for more information.
+
+To get out of *less*, hit the *q* key.
+
+Now you know.
+
+-----
+===Q: Does inxi support BSDs?===
+*A:* Yes, sort of. FreeBSD support is decent though incomplete. OpenBSD support is weaker, because each BSD insists on using its own set of tools, that have different syntaxes, so trying to actually support the BSDs completely is essentially impossible, at least if you want a life. 
+
+IMPORTANT: do NOT use the branches/bsd version, that is only for testing and debugging purposes, use the main trunk/inxi version of inxi, native bsd support was added a long time ago.
+
+To see what works in your BSD flavor, just run:
+{{{
+inxi -rfv7
+}}}
+This triggers almost everything in inxi. Then you can see what is supported, what needs root, and what is not supported in your BSD flavor. Each line should tell you if it supports BSD or not. 
+
+I spent quite a while working on BSD support but in the end, I decided I'd just try to make sure basic functionality works on FreeBSD, and after that, I don't really care about the other BSDs. The user base for each is simply too small and fragmented to warrant any more dev time. The core functions do more or less work in some cases. For example, -R works for zfs raid, very well. But some things you just can't get easily from BSDs at all as regular user, and I don't like adding too many things that require root to get data for. 
+
+As of 2014-03-16 -s does not work, no lm-sensors type app in BSDs, -D does not work, -d does not work, -o does not work. -M works with dmidecode as root. 
+
+In general now inxi is not going to get much more dev time for BSDs, but I will spend time maintaining current support in FreeBSD (since the FreeBSD/PCBSD family is the largest, this makes it the logical one to support most completely). I don't see any huge rush to adopt inxi among BSD users, but stranger things have happened. 
+
+Patches are accepted as long as they are coherent. 
+
+Speaking only for myself, my time looking at the (in my opinion) overly large range of differences and variations between each BSD convinced me that getting these differences handled more completely is a bad way to spend my finite time, and it would pointless bloat out the inxi code for almost no gain to probably 99.99% of people who use inxi. Overall, BSD support was an interesting experiment, and it's nice seeing it run on FreeBSD servers, but I doubt it will go a lot further than it is now, unless it's easy to just include BSD support for new features.
+-----

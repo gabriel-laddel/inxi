@@ -1,0 +1,40 @@
+#!/bin/bash
+
+get_drive_size()
+{
+## searches /proc/partitions for any mounted drive, i.e. hda, sda, hdb, sdb,etc
+## does not look for individual partitions
+## returns value in GigaBytes without any decimal
+## Multiply by 1.024 to give "marketing" size, i.e. size on box vs formated size
+if [[ -e /proc/partitions ]]; then
+	gawk -F' ' '
+		$4 ~ /^[hs]d[a-z]$/ { drive_size+=$3 }
+		## $4 is the drive name/type (i.e. hda, sda)
+	END {
+		printf "%1.0f\n", (drive_size/1000000)
+		## "%1.0f" removes decimals; then divide by 1,000,000 to get GB and
+	}
+	' /proc/partitions
+fi
+}
+
+get_drives_used_amount()
+{
+## this will get the listed "Used" amounts from 'df' then add the ammounts for all drives
+## given in KB
+	if [[ $(get_drive_size) -gt 0 ]]; then
+		df | gawk ' { if (/^\/dev\/([hs]d[a-z][0-9]+)/) { c += $3 } }
+			END { print c }'
+	fi
+}
+
+percent_drive_usage()
+{
+## Given as % used; see functions get_drive_size() and get_drives_used_amount() for more infomation
+if [[ $(get_drive_size) -gt 0 ]]; then
+	echo "$(($(get_drives_used_amount)/$(get_drive_size)/10000))"
+fi
+}
+get_drive_size
+get_drives_used_amount
+get_drive_usage

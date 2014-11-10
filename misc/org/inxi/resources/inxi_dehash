@@ -1,0 +1,24 @@
+#!/bin/bash
+
+INXI_HOME="$HOME/Applications/inxi/modules"
+RESOURCES="$INXI_HOME/org/inxi/resources"
+
+source $RESOURCES/inxi_aliases
+
+## key:value hash/dictionary parser 
+## $1 is hash, $2 is key, returns value
+inxi_dehash() {
+	
+	hash=${1}
+	key="${2}"
+	
+	gawk -v key="$key" ' 
+		BEGIN {  
+			RS=" "
+			FS=":" 
+		}{ if ($1 ~ key){ 
+			value = $2 
+		}}; END { 
+			print value
+		} ' <<< $hash
+}

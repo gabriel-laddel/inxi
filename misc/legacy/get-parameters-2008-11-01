@@ -1,0 +1,70 @@
+#!/bin/bash
+
+## this is the old get_parameters from infobash more or less, using the complex method
+## to handle -v or --version. That method, by the way, doesn't actually work, see:
+## infobash -v 6, for example, which will complain about unsupported verbosity level.
+
+# Get the parameters
+# args: $1 - full script startup args: $@
+get_parameters() 
+{
+	if [ -z "$1" ]
+	then
+		return 1
+	fi
+	while [ -n "$1" ]
+	do
+		case $1 in
+		--crap)
+			CRAP=1
+			;;
+		-d|--debug)
+			DEBUG=1
+			exec 2>&1
+			;;
+		-v|-v[0-9]|--verbose)
+			if [[ ${#1} -eq 3 ]];then
+				VERBOSITY_LEVEL="${1:2}"
+			else
+				if [[ $2 = --* || $2 = -* || -z $2 ]];then
+					VERBOSITY_LEVEL=1
+				else
+					shift
+					VERBOSITY_LEVEL="$1" 
+				fi
+			fi
+			grep -q "^[0-${VERBOSITY_LEVELS}]$" <<< $VERBOSITY_LEVEL || error_handler 4 "$VERBOSITY_LEVEL"
+			;;
+		-U)
+			print_screen_output "Updating $SCRIPT_NAME. Current version number: $SCRIPT_VERSION_NUMBER"
+			wget -O $SCRIPT_PATH/$SCRIPT_NAME http://techpatterns.com/downloads/distro/$SCRIPT_NAME || error_handler 8 "$?"
+			if [ "$?" -eq 0 ];then
+				SCRIPT_VERSION_NUMBER=$( grep -im 1 'version:' $SCRIPT_PATH/$SCRIPT_NAME | awk '{print $3}' )
+				print_screen_output "Successfully updated to version: $SCRIPT_VERSION_NUMBER\nTo run the new version, just start $SCRIPT_NAME again."
+				exit 0
+			fi
+			;;
+		-V|--version)
+			print_version_info
+			exit 0
+			;;
+		[0-9]|[0-9][0-9])
+			# these will need to be converted to standard type options
+			echo "$1" | grep -q '^[0-9][0-9]\?$' || error_handler 3 "$1"
+			COLOR_SCHEME_SET='true'
+			if [ -z "$COLOR_SCHEME" ];then
+				set_color_scheme "$1"
+			fi
+			;;
+		-h|--help)
+			show_options
+			exit 0
+			;;
+		*)
+			show_options
+			error_handler 7 "$1"
+			;;
+		esac
+		shift
+	done
+}

@@ -1,0 +1,277 @@
+Main readme for /etc/os-release
+http://www.freedesktop.org/software/systemd/man/os-release.html
+
+==========================================================================
+
+linux mint debian:
+
+$ cat /etc/os-release
+PRETTY_NAME="Debian GNU/Linux wheezy/sid"
+NAME="Debian GNU/Linux"
+ID=debian
+ANSI_COLOR="1;31"
+  
+$ cat /etc/lsb-release
+DISTRIB_ID=LinuxMint
+DISTRIB_RELEASE=1
+DISTRIB_CODENAME=debian
+DISTRIB_DESCRIPTION="Linux Mint Debian Edition"
+
+==========================================================================
+solus os. Note, no /etc/os-release
+
+
+$ inxi -F
+System:    Host: gazza64 Kernel: 3.3.6-solusos x86_64 (64 bit) Desktop: Gnome 2.30.2 Distro: SolusOS 1 Eveline
+Machine:   Mobo: ASUSTeK model: SABERTOOTH X58 version: Rev 1.xx Bios: American Megatrends version: 0603 date: 10/29/2010
+CPU:       Quad core Intel Core i7 CPU 950 (-HT-MCP-) cache: 8192 KB flags: (lm nx sse sse2 sse3 sse4_1 sse4_2 ssse3 vmx)
+				Clock Speeds: 1: 1600.00 MHz 2: 1600.00 MHz 3: 1600.00 MHz 4: 1600.00 MHz 5: 1600.00 MHz 6: 1600.00 MHz 7: 1600.00 MHz 8: 1600.00 MHz
+Graphics:  Card: nVidia G98 [GeForce 8400 GS] X.Org: 1.10.4 driver: nvidia Resolution: 1920x1080@60.0hz
+				GLX Renderer: GeForce 8400 GS/PCIe/SSE2 GLX Version: 3.3.0 NVIDIA 304.48
+Audio:     Card: Intel 82801JI (ICH10 Family) HD Audio Controller driver: snd_hda_intel Sound: ALSA ver: 1.0.24
+Network:   Card: Realtek RTL-8110SC/8169SC Gigabit Ethernet driver: r8169
+				IF: eth1 state: up speed: 100 Mbps duplex: full mac: bc:ae:c5:18:be:6e
+Drives:    HDD Total Size: 7001.4GB (53.4% used) 1: id: /dev/sda model: ST2000DL003 size: 2000.4GB
+				2: id: /dev/sdc model: Hitachi_HDS72202 size: 2000.4GB 3: id: /dev/sdb model: Hitachi_HDS72202 size: 2000.4GB
+				4: id: /dev/sdd model: ST31000528AS size: 1000.2GB
+Partition: ID: / size: 20G used: 5.3G (29%) fs: ext4 ID: /home size: 20G used: 7.7G (42%) fs: ext3
+				ID: swap-1 size: 12.88GB used: 0.00GB (0%) fs: swap
+Sensors:   None detected - is lm-sensors installed and configured?
+Info:      Processes: 184 Uptime: 2:19 Memory: 501.9/11992.7MB Client: Shell inxi: 1.8.5
+  
+  
+  
+lsb-release
+DISTRIB_ID=SolusOS
+DISTRIB_RELEASE=1
+DISTRIB_CODENAME=Eveline
+DISTRIB_DESCRIPTION="SolusOS Eveline 64-bit"
+
+
+==========================================================================
+crunchbang
+
+$ cat /etc/lsb-release-crunchbang 
+DISTRIB_ID=CrunchBang
+DISTRIB_RELEASE=10
+DISTRIB_CODENAME=statler
+DISTRIB_DESCRIPTION="CrunchBang 10 statler"
+
+==========================================================================
+debian sid, sidux install:
+
+cat /etc/os-release
+PRETTY_NAME="Debian GNU/Linux 7.0 (wheezy)"
+NAME="Debian GNU/Linux"
+VERSION_ID="7.0"
+VERSION="7.0 (wheezy)"
+ID=debian
+ANSI_COLOR="1;31"
+HOME_URL="http://www.debian.org/"
+SUPPORT_URL="http://www.debian.org/support/"
+BUG_REPORT_URL="http://bugs.debian.org/"
+
+==========================================================================
+fedora
+/etc/lsb-release
+
+DISTRIB_ID=Fedora
+DISTRIB_RELEASE=10
+DISTRIB_CODENAME=cambridge
+DISTRIB_DESCRIPTION="Fedora 10"
+
+/etc/os-release
+
+NAME=Fedora
+VERSION="17 (Beefy Miracle)"
+ID=fedora
+VERSION_ID=17
+PRETTY_NAME="Fedora 17 (Beefy Miracle)"
+ANSI_COLOR="0;34"
+CPE_NAME="cpe:/o:fedoraproject:fedora:17"
+HOME_URL="https://fedoraproject.org/"
+BUG_REPORT_URL="https://bugzilla.redhat.com/"
+
+NAME=Fedora 
+VERSION="17 (Beefy Miracle)" 
+ID=fedora 
+VERSION_ID=17 
+PRETTY_NAME="Fedora 17 (Beefy Miracle)" 
+ANSI_COLOR="0;34" 
+CPE_NAME="cpe:/o:fedoraproject:fedora:17" 
+
+Fedora: cat /etc/fedora-release
+Fedora release 10 (Cambridge)
+
+Red Hat/CentOS: cat /etc/redhat-release
+CentOS release 5.3 (Final)
+
+
+==========================================================================
+gentoo
+/etc/os-release
+
+NAME=Gentoo
+ID=gentoo
+PRETTY_NAME="Gentoo/Linux"
+ANSI_COLOR="1;32"
+HOME_URL="http://www.gentoo.org/"
+SUPPORT_URL="http://www.gentoo.org/main/en/support.xml"
+BUG_REPORT_URL="https://bugs.gentoo.org/"
+
+File: /etc/os-release
+
+NAME=Gentoo
+ID=gentoo
+PRETTY_NAME=Gentoo GNU/Linux
+ANSI_COLOR=1;34
+
+
+cat /etc/gentoo-release
+Gentoo Base System release 1.12.11.1
+
+==========================================================================
+slackware 14
+/etc/os-release
+
+NAME=Slackware
+VERSION="14.0"
+ID=slackware
+VERSION_ID=14.0
+PRETTY_NAME="Slackware 14.0"
+ANSI_COLOR="0;34"
+CPE_NAME="cpe:/o:slackware:slackware_linux:14.0"
+HOME_URL="http://slackware.com/"
+SUPPORT_URL="http://www.linuxquestions.org/questions/slackware-14/"
+BUG_REPORT_URL="http://www.linuxquestions.org/questions/slackware-14/"
+
+cat /etc/slackware-version 
+Slackware 12.2.0
+
+==========================================================================
+ubuntu 
+
+cat /etc/*-release
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=11.10
+DISTRIB_CODENAME=oneiric
+DISTRIB_DESCRIPTION="Ubuntu 11.10"
+
+cat /etc/lsb-release
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=9.04
+DISTRIB_CODENAME=jaunty
+DISTRIB_DESCRIPTION="Ubuntu 9.04"
+
+cat /etc/lsb-release
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=8.10
+DISTRIB_CODENAME=intrepid
+DISTRIB_DESCRIPTION="Ubuntu 8.10"
+
+$lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 9.04
+Release:    9.04
+Codename:   jaunty
+
+==========================================================================
+ubuntu  precise
+
+/etc/lsb-release
+
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=12.04
+DISTRIB_CODENAME=precise
+DISTRIB_DESCRIPTION="Ubuntu 12.04.1 LTS"
+
+/etc/os-release
+NAME="Ubuntu"
+VERSION="12.04.1 LTS, Precise Pangolin"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu precise (12.04.1 LTS)"
+VERSION_ID="12.04"
+
+/etc/issue
+Ubuntu 12.04.1 LTS \n \l
+
+
+==========================================================================
+
+ubuntu raring
+
+/etc/lsb-release
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=13.04
+DISTRIB_CODENAME=raring
+DISTRIB_DESCRIPTION="Ubuntu Raring Ringtail (development branch)"
+
+/etc/os-release
+NAME="Ubuntu"
+VERSION="13.04, Raring Ringtail"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu Raring Ringtail (development branch)"
+VERSION_ID="13.04"
+HOME_URL="http://www.ubuntu.com/"
+SUPPORT_URL="http://help.ubuntu.com/"
+BUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"
+
+
+==========================================================================
+
+
+
+
+==========================================================================
+==========================================================================
+http://linuxmafia.com/faq/Admin/release-files.html
+
+Annvix: /etc/annvix-release
+Arch Linux: /etc/arch-release
+Arklinux: /etc/arklinux-release
+Aurox Linux: /etc/aurox-release
+BlackCat: /etc/blackcat-release
+Cobalt: /etc/cobalt-release
+Conectiva: /etc/conectiva-release
+Debian: /etc/debian_version, /etc/debian_release (rare)
+Fedora Core: /etc/fedora-release
+Gentoo Linux: /etc/gentoo-release
+Immunix: /etc/immunix-release
+Knoppix: knoppix_version
+Linux-From-Scratch: /etc/lfs-release
+Linux-PPC: /etc/linuxppc-release
+Mandrake: /etc/mandrake-release
+Mandriva/Mandrake Linux: /etc/mandriva-release, /etc/mandrake-release, /etc/mandakelinux-release
+MkLinux: /etc/mklinux-release
+Novell Linux Desktop: /etc/nld-release
+PLD Linux: /etc/pld-release
+Red Hat: /etc/redhat-release, /etc/redhat_version (rare)
+Slackware: /etc/slackware-version, /etc/slackware-release (rare)
+SME Server (Formerly E-Smith): /etc/e-smith-release
+Solaris SPARC: /etc/release
+Sun JDS: /etc/sun-release
+SUSE Linux: /etc/SuSE-release, /etc/novell-release
+SUSE Linux ES9: /etc/sles-release
+Tiny Sofa: /etc/tinysofa-release
+TurboLinux: /etc/turbolinux-release
+Ubuntu Linux: /etc/lsb-release
+UltraPenguin: /etc/ultrapenguin-release
+UnitedLinux: /etc/UnitedLinux-release (covers SUSE SLES8)
+VA-Linux/RH-VALE: /etc/va-release
+Yellow Dog: /etc/yellowdog-release
+
+alternate:
+
+Novell SuSE---> /etc/SuSE-release
+Red Hat--->/etc/redhat-release, /etc/redhat_version
+Fedora-->/etc/fedora-release
+Slackware--->/etc/slackware-release, /etc/slackware-version
+Debian--->/etc/debian_release, /etc/debian_version
+Mandrake--->/etc/mandrake-release
+Yellow dog-->/etc/yellowdog-release
+Sun JDS--->/etc/sun-release
+Solaris/Sparc--->/etc/release
+Gentoo--->/etc/gentoo-release

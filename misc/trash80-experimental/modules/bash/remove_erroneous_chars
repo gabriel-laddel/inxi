@@ -1,0 +1,15 @@
+#!/bin/bash
+
+remove_erroneous_chars()
+{
+## this removes newline and pipes
+## RS is input record separator
+## gsub is substitute;
+	gawk 'BEGIN { RS="" } { gsub(/\n$/,"");         ## (newline; end of string) with (nothing)
+									gsub(/\n/," ");         ## (newline) with (space)
+									gsub(/^ *| *$/, "");    ## (pipe char) with (nothing)
+									gsub(/  +/, " ");       ## ( +) with (space)
+									gsub(/ [ ]+/, " ");     ## ([ ]+) with (space)
+									gsub(/^ +| +$/, "");    ## (pipe char) with (nothing)
+									printf $0 }' "$1"       ## prints (returns) cleaned input
+}

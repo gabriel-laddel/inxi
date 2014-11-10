@@ -1,0 +1,44 @@
+#!/bin/bash
+
+VERSION="2010.12.7"
+STABILITY="ALPHA"
+
+################################################		TESTING SECTION
+## remove for release
+#INXI_HOME="$HOME/Applications/inxi/modules"
+#MODULES="$INXI_HOME/org/inxi/cpu"
+#RESOURCES="$INXI_HOME/org/inxi/resources"
+
+#source $RESOURCES/inxi_globals
+#source $RESOURCES/inxi_dehash
+
+#source $MODULES/get_cpu_physical_core_count
+#source $MODULES/get_cpu_ht_state
+############################################		END TESTING SECTION
+
+# Filter boilerplate & buzzwords.
+# args: $1 - quoted: "$@" array of ban terms
+make_ban_lists() {
+	
+	local ban_list=''
+	# Iterate over $@
+	## note: this is a weird, non-intuitive method, needs some documentation or rewriting
+	## if you declare ban_string it stops working, have to read up on this
+	for ban_string
+	do
+		# echo "term=\"$ban_string\"" # >&2
+		if [[ ${ban_string:0:1} = $'\2' ]];then
+			ban_list="${ban_list}${ban_list+|}${ban_string:1:${#ban_string}-1}"
+		else
+			# Automatically escapes [ ] ( ) . and +
+			ban_list="${ban_list}${ban_list+|}$( echo "$ban_string" | gawk '{
+				gsub(/([\[\]+().])/,"\\\\&")
+				print
+			}' )"
+		fi
+	done
+
+	echo "$ban_list"
+}
+# make_ban_lists "${A_CPU_BANS[@]}";exit
+

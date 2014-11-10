@@ -1,0 +1,205 @@
+#!/bin/bash
+
+HOST="localhost"
+PORT="6600"
+MPD_TCP="/dev/tcp/$HOST/$PORT"
+
+function mpd_sndcommmand() {
+        # $1 command
+        exec 5<> $MPD_TCP 2>/dev/null
+        [[ $? -gt 0 ]] && return 1
+        echo $1 >&5
+        echo "close" >&5
+        tmp=$(cat <&5)
+        exec 5>&-
+        _ret=$(head -n -1 <<< "$tmp" | tail -n +2)
+        return 0
+}
+
+function mpd_getinfo() {
+	mpd_sndcommmand currentsong
+	[[ $? -gt 0 ]] && return 1
+	_tmp=$_ret
+        mpdTitle=$(awk -F": " '/^Title: /{print $2}' <<< "$_tmp" 2>/dev/null )
+        mpdArtist=$(awk -F": " '/^Artist: /{print $2}' <<< "$_tmp" 2>/dev/null)
+}
+
+function getLyrics () {
+	[[ ! -d "$HOME/.lyrics" ]] && mkdir $HOME/.lyrics
+	_mpctitle_0=$(echo "$mpdTitle" | sed -e 's/ /_/g')
+	_mpcartist_0=$(echo "$mpdArtist" | sed -e 's/ /_/g')
+	if [ -f "$HOME/.lyrics/${_mpcartist_0}-${_mpctitle_0}" ]; then
+		_mylyrics=$(cat "$HOME/.lyrics/${_mpcartist_0}-${_mpctitle_0}")
+	else
+		_mylyricsout=$(wget -qO - "http://www.lyricstime.com/${_mpcartist_0}-${_mpctitle_0}-lyrics.html")
+		_mylyrics=$(echo "$_mylyricsout" | sed -n '/div id="songlyrics"/,/<\/div>/p' | sed 's/<p>//;s/<div id="songlyrics" >//;s/<\/p>//;s/<\/div>//;s/<br \/>//g')
+	fi
+}
+
+if [ `pidof mpd` ]; then
+	mpd_getinfo
+	getLyrics
+	if [[ "$_mylyrics" ]]; then
+		if [ "$_dlonly" == "true" ]; then
+			[[ -f "$HOME/.lyrics/${_mpcartist_0}-${_mpctitle_0}" ]] && echo -e "Error: Lyrics file already exists!"
+			echo -e "${_mylyrics}" > "$HOME/.lyrics/${_mpcartist_0}-${_mpctitle_0}"
+			echo -e "\e[1;32mSUCCESS! \e[0m\e[1mLyrics downloaded successfully to $HOME/.lyrics/"
+		else
+			echo -e "\e[1;32m${mpdTitle}\e[1;33m - \e[1;32m${mpdArtist}\e[0m"
+			echo ""
+			echo -e "\e[1m${_mylyrics}"
+			if [ ! -f "$HOME/.lyrics/${_mpcartist_0}-${_mpctitle_0}" ]; then echo -e "${_mylyrics}" > "$HOME/.lyrics/${_mpcartist_0}-${_mpctitle_0}"; echo -e "\e[1;32mSUCCESS! \e[0m\e[1mLyrics downloaded successfully to $HOME/.lyrics/"; fi
+		fi
+	else
+		echo -e "\e[1;31mNo lyrics found for \"${_mpctitle} - ${_mpcartist}\"\e[0m"
+	fi
+else
+        echo "No currently playing song. (MPD stopped?)"
+fi
+
+
+#!/bin/bash
+#
+# mpdnotify config - any valid bash is allowed, you
+# only need to define handle_event() for the deamon
+# to run properly
+#
+# $mydir exists, and it's value is /home/kittykatt/.config/mpdnotify/
+#
+###
+
+###
+#
+# the actual handle_event() definition
+#
+# this is the only requirement for a valid config
+#
+###
+
+# Constants
+HOST="192.168.1.10"
+PORT="6600"
+MPD_TCP="/dev/tcp/$HOST/$PORT"
+coverDir="$HOME/.covers/"
+tmpCover="/tmp/cover"
+baseCover="$HOME/.config/mpdnotify/base.png"
+topCover="$HOME/.config/mpdnotify/top.png"
+noCover="$HOME/.config/mpdnotify/NOCOVER.png"
+myPID="$HOME/.config/mpdnotify/pid"
+mpdPID=$(pidof mpd)
+mpdArtist="Could not find Artist's name"
+mpdTitle="Could not find Song's title"
+mpdAlbum="Could not find Album's name"
+mpcLength="Could not find Song's length"
+mpcInfo="Cound not find Song's info"
+#logout="true"
+
+
+
+function mpd_sndcommmand() {
+	# $1 command
+	exec 5<> $MPD_TCP 2>/dev/null
+	[[ $? -gt 0 ]] && return 1
+	echo $1 >&5
+	echo "close" >&5
+	tmp=$(cat <&5)
+	exec 5>&-
+	_ret=$(head -n -1 <<< "$tmp" | tail -n +2)
+	return 0
+}
+
+function mpd_getinfo() {
+	mpd_sndcommmand currentsong
+	[[ $? -gt 0 ]] && return 1
+	_tmp=$_ret
+	mpdTitle=$(grep "^Title: " <<< "$_tmp" 2>/dev/null | sed "s/Title: //")
+	mpdArtist=$(grep "^Artist: " <<< "$_tmp" 2>/dev/null | sed "s/Artist: //")
+	mpdAlbum=$(grep "^Album: " <<< "$_tmp" 2>/dev/null | sed "s/Album: //")
+	_songtime=$(grep "^Time: " <<< "$_tmp" 2>/dev/null | sed "s/Time: //" | cut -f 1 -d :)
+	(( _mm=$_songtime / 60 ))
+	[[ ${#_mm} -eq 1 ]] && _mm="0$_mm"
+	(( _ss=$_songtime - $_mm * 60 ))
+	[[ ${#_ss} -eq 1 ]] && _ss="0$_ss"
+	mpdLength="$_mm:$_ss"
+	mpd_sndcommmand "status"
+	_tmp=$_ret
+	mpdSongID=$(grep "^songid: " <<< "$_tmp" 2>/dev/null | sed "s/songid: //")
+	mpdPlaylistL=$(grep "^playlistlength: " <<< "$_tmp" 2>/dev/null | sed "s/playlistlength: //")
+}
+
+
+function fetch_cover() {
+  coverdir="$HOME/.covers"
+  album=$1
+  file="$coverdir/$album"
+  if [ ! -f "$file" ] ; then
+  	logger "$file is not in covers... " >/dev/null
+        url="http://www.albumart.org/index.php?srchkey=${album// /+}&itempage=1&newsearch=1&searchindex=Music"
+        cover_url=$(curl -s "$url" | awk -F 'src=' '/zoom-icon.jpg/ {print $2}' | cut -d '"' -f 2 | head -n1)
+        if [ -n "$cover_url" ]; then
+          logger "$file retrieved and placed in covers directory..." >/dev/null
+          wget -q -O "$file" "$cover_url"
+        else
+          logger "ERROR: Album cover not found online. Searched for: ${album// /+}" >/dev/null
+        fi
+  fi
+}
+
+handle_event() {
+  if [[ -z $mpdPID ]]; then
+    echo "MPD is not currently running!"
+    if [[ -f "$myPID" ]]; then
+	rm "$myPID"
+    fi
+    exit
+  else
+    mpd_getinfo
+    if [ -f "/tmp/cover" ]; then rm /tmp/cover; fi
+    if [ -f "$coverDir/$mpdAlbum" ]; then
+      cp "$coverDir/$mpdAlbum" /tmp/cover
+      mogrify -resize 65x65! $tmpCover
+      convert $baseCover "$tmpCover" -geometry +4+3 -composite $topCover -geometry +0+0 -composite "$tmpCover"
+      mpdAlbum=$(echo "$mpdAlbum" | sed -e 's/&/&amp;/')
+      mpdTitle=$(echo "$mpdTitle" | sed -e 's/&/&amp;/')
+      mpdArtist=$(echo "$mpdArtist" | sed -e 's/&/&amp;/')
+      [[ "${#mpdArtist}" -gt "25" ]] && mpdArtist=$(echo "${mpdArtist:0:25}...")
+      [[ "${#mpdTitle}" -gt "25" ]] && mpdTitle=$(echo "${mpdTitle:0:25}...")
+      [[ "${#mpdAlbum}" -gt "25" ]] && mpdAlbum=$(echo "${mpdAlbum:0:25}...")
+      notify-send --expire-time=1300 -i "/tmp/cover" "MPD Notification" "`echo "<u>${mpdTitle}</u>"; echo "By: <i>${mpdArtist}</i>"; echo "From: <i>${mpdAlbum}</i>"; echo "Length: <i>${mpdLength}</i>"; echo "Position: <i>${mpdSongID} / ${mpdPlaylistL}</i>"`"
+    else
+      # sh $HOME/Scripts/coverArt.sh "$mpdAlbum"
+      fetch_cover "$mpdAlbum"
+      if [ -f "$coverDir/$mpdAlbum" ]; then
+        cp "$coverDir/$mpdAlbum" /tmp/cover
+        mogrify -resize 65x65! $tmpCover
+        convert $baseCover "$tmpCover" -geometry +4+3 -composite $topCover -geometry +0+0 -composite "$tmpCover"
+        mpdAlbum=$(echo "$mpdAlbum" | sed -e 's/&/&amp;/')
+        mpdTitle=$(echo "$mpdTitle" | sed -e 's/&/&amp;/')
+        mpdArtist=$(echo "$mpdArtist" | sed -e 's/&/&amp;/')
+        [[ "${#mpdArtist}" -gt "25" ]] && mpdArtist=$(echo "${mpdArtist:0:25}...")
+        [[ "${#mpdTitle}" -gt "25" ]] && mpdTitle=$(echo "${mpdTitle:0:25}...")
+        [[ "${#mpdAlbum}" -gt "25" ]] && mpdAlbum=$(echo "${mpdAlbum:0:25}...")
+        notify-send --expire-time=1300 -i "/tmp/cover" "MPD Notification" "`echo "<u>${mpdTitle}</u>"; echo "By: <i>${mpdArtist}</i>"; echo "From: <i>${mpdAlbum}</i>"; echo "Length: <i>${mpdLength}</i>"; echo "Position: <i>${mpdSongID} / ${mpdPlaylistL}</i>"`"
+      else
+        cp "$noCover" /tmp/cover
+        mogrify -resize 65x65! $tmpCover
+        convert $baseCover "$tmpCover" -geometry +4+3 -composite $topCover -geometry +0+0 -composite "$tmpCover"
+	mpdAlbum=$(echo "$mpdAlbum" | sed -e 's/&/&amp;/')
+        mpdTitle=$(echo "$mpdTitle" | sed -e 's/&/&amp;/')
+        mpdArtist=$(echo "$mpdArtist" | sed -e 's/&/&amp;/')
+        [[ "${#mpdArtist}" -gt "25" ]] && mpdArtist=$(echo "${mpdArtist:0:25}...")
+        [[ "${#mpdTitle}" -gt "25" ]] && mpdTitle=$(echo "${mpdTitle:0:25}...")
+        [[ "${#mpdAlbum}" -gt "25" ]] && mpdAlbum=$(echo "${mpdAlbum:0:25}...")
+        notify-send --expire-time=1300 -i "${tmpCover}" "MPD Notification" "`echo "<u>${mpdTitle}</u>"; echo "By: <i>${mpdArtist}</i>"; echo "From: <i>${mpdAlbum}</i>"; echo "Length: <i>${mpdLength}</i>"; echo "Position: <i>${mpdSongID} / ${mpdPlaylistL}</i>"`"
+      fi
+    fi
+  fi
+
+  if [ "$logout" == "true" ]; then
+    echo -e "$mpdTitle \n $mpdArtist \n $mpdAlbum \n" > $HOME/mpdout
+  fi
+}
+
+# handle_event() {
+#    mpdnotify &
+# }

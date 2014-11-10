@@ -1,0 +1,23 @@
+	if [[ ${#a_distro_glob[@]} -eq 1 ]];then
+		distro_file="${a_distro_glob}"
+	# use the file if it's in the known good lists
+	elif [[ ${#a_distro_glob[@]} -gt 1 ]];then
+		for i in $DISTROS_DERIVED $DISTROS_PRIMARY
+		do
+			# Only echo works with ${var[@]}, not print_screen_output() or script_debugger()
+			# This is a known bug, search for the word "strange" inside comments
+			# echo "i='$i' a_distro_glob[@]='${a_distro_glob[@]}'"
+			if [[ " ${a_distro_glob[@]} " == *" $i "* ]];then
+				# Now lets see if the distro file is in the known-good working-lsb-list
+				# if so, use lsb-release
+				# this is for only those distro's with self named release/version files
+				# because Mint does not use such, it must be done as below
+				if [[ " $DISTROS_LSB_GOOD " == *" ${i} "* && -f /etc/lsb-release ]];then
+					distro_file='lsb-release'
+				else
+					distro_file="${i}"
+				fi
+				break
+			fi
+		done
+	fi

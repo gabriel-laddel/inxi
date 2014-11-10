@@ -1,0 +1,64 @@
+#!/bin/bash
+
+while getopts Ac:CdDEfFGhHINPSv:Vx%@:${update_flags} opt
+
+			E)	B_SHOW_EXTRAS='true'
+				use_short='false'
+				;;
+
+
+print_it_out()
+{
+	local lspci_data='' # only for verbose
+
+	if [[ $B_SHOW_SHORT_OUTPUT == 'true' ]];then
+		print_short_data
+	else
+		lspci_data="$( get_lspci_data )"
+		if [[ $VERBOSITY_LEVEL -ge 1 || $B_SHOW_SYSTEM == 'true' ]];then
+			print_system_data
+		fi
+		if [[ $VERBOSITY_LEVEL -ge 1 || $B_SHOW_CPU == 'true' ]];then
+			print_cpu_data
+		fi
+		if [[ $VERBOSITY_LEVEL -ge 1 || $B_SHOW_GRAPHICS == 'true' ]];then
+			print_gfx_data
+		fi
+		if [[ $VERBOSITY_LEVEL -ge 5 || $B_SHOW_AUDIO == 'true' ]];then
+			print_audio_data
+		fi
+		if [[ $VERBOSITY_LEVEL -ge 2 || $B_SHOW_NETWORK == 'true' ]];then
+			print_networking_data
+		fi
+		if [[ $VERBOSITY_LEVEL -ge 1 || $B_SHOW_DISK == 'true' ]];then
+			print_hard_disk_data
+		fi
+		if [[ $VERBOSITY_LEVEL -ge 4 || $B_SHOW_PARTITIONS == 'true' ]];then
+			print_hdd_partition_data
+		fi
+		if [[ $B_SHOW_EXTRAS == 'true' ]];then
+			print_extras_data
+		fi
+		if [[ $VERBOSITY_LEVEL -ge 1 || $B_SHOW_INFO == 'true' ]];then
+			print_info_data
+		fi
+	fi
+}
+
+print_extras_data()
+{
+	local extras_data='' ip=''
+
+	if [[ -n $( which lynx ) ]];then
+		ip=$( lynx -dump techpatterns.com/ip | awk -F 'is: ' '{
+			#gsub("\n","",$2")
+			print $2
+		}'  )
+	fi
+	if [[ -z $ip ]];then
+		ip='N/A'
+	fi
+
+	extras_data=$( create_print_line "Extras:" "${C1}Wan IP:${C2} $ip" )
+	print_screen_output "$extras_data"
+}

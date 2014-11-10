@@ -1,0 +1,30 @@
+--- /home/harald/bin/scripts/inxi/svn/branches/one/inxi	2009-02-14 23:09:28.000000000 -0600
++++ inxi	2009-02-17 22:03:44.729759652 -0600
+@@ -1376,6 +1376,27 @@
+ 	fi
+ 	IFS="$ORIGINAL_IFS"
+
++
++	# alsa usb
++	# for every sound card symlink in /proc/asound - display information about it
++	for FILE in /proc/asound/*; do
++
++		# if lsusb exists, the file is a symlink, and contains an important usb exclusive file: continue
++		if [[ -e "/usr/sbin/lsusb" && -L "$FILE" && -a "$FILE/usbid"  ]]; then
++
++			# send error messages of lsusb to /dev/null as it will display a bunch if not a super user
++			# also, find the contents of usbid in lsusb and print everything after the 7th word on the corresponding line
++			# finally, strip out commas as they will change the driver :)
++			# lsusb is not contained in some users paths, hardcode it!
++			A_AUDIO_DATA=( "${A_AUDIO_DATA[@]}" \
++				"$( /usr/sbin/lsusb -v 2>/dev/null |\
++				grep  $(cat $FILE/usbid)  |\
++				gawk '{ for( i=7; i<NF; i++) { printf($i " ") } printf "\n" }' |\
++				sed "s/,/ /"),usb" )
++
++		fi
++	done
++
+ 	# handle cases where card detection fails, like in PS3, where lspci gives no output, or headless boxes..
+ 	if [[ ${#A_AUDIO_DATA[@]} -eq 0 ]];then
+ 		A_AUDIO_DATA[0]='Failed to Detect Sound Card!'

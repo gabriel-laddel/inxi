@@ -1,0 +1,28 @@
+#!/bin/bash
+# get mem params
+
+get_mem_params()
+{
+	local memory_total=$(egrep -i "memtotal:" /proc/meminfo)
+	local memory_free=$(egrep -i "memfree:" /proc/meminfo)
+	# local memory_buffers=$(egrep -i "buffers:" /proc/meminfo)
+	# local memory_cached=$(egrep -i "cached:" /proc/meminfo)
+	MEM=$(gawk '
+	/^MemTotal:/ { total = $2 }
+	/^(MemFree|Buffers|Cached):/ { notused+=$2 }
+	END {
+		used = total-notused
+		printf("%.1f/%.1fMB\n", used/1024, tot/1024)
+	}' /proc/meminfo)
+
+	PROC=$(ps aux | wc -l)
+	UPT=$(uptime | gawk '{ time = gensub(/^.*up *([^,]*).*$/,"\\1","g",$0); gsub(/ /,"",time); print time }')
+
+	IFS=$'\n'; GFX=($(echo "$LSPCI" | gawk -F': ' '/VGA compatible controller/ { print $NF }')); IFS="$OIFS"
+	for ((I=0;I<${#GFX[@]};I++)); do
+		GFX[I]=$(sanitize NORMALBANS "${GFX[I]}")
+	done
+
+	# GFXMEM is UNUSED at the moment, because it shows AGP aperture size, which is not necessarily equal to GFX memory..
+	# GFXMEM="size=[$(echo "$LSPCI" | gawk '/VGA/{while (!/^$/) {getline;if (/size=[0-9][0-9]*M/) {size2=gensub(/.*\[size=([0-9]+)M\].*/,"\\1","g",$0);if (size<size2){size=size2}}}}END{print size2}')M]"
+}

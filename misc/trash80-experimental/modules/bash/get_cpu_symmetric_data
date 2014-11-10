@@ -1,0 +1,33 @@
+#!/bin/bash
+
+VERSION="2010.12.10"
+STABILITY="ALPHA"
+
+################################################		TESTING SECTION
+## remove for release
+#INXI_HOME="$HOME/Applications/inxi/modules"
+#RESOURCES="$INXI_HOME/org/inxi/resources"
+
+#source $RESOURCES/inxi_globals
+############################################		END TESTING SECTION
+
+get_cpu_symmetric_data() {
+	num_of_sockets=$1
+	num_of_real_cores=$2
+	
+	gawk -v num_of_sockets=$1 num_of_real_cores=$2 '
+		BEGIN {
+			IGNORECASE=1
+		}
+		if ( num_of_sockets > 1 ) {
+			# non-HT multi-core or HT multi-core
+			if (( num_of_sockets < num_of_cores) {
+				type = type "MCP-"
+			}
+			# >1 cpu sockets active
+			if ( num_of_sockets > 1 )
+			{
+				type = type "SMP-"
+			}
+		}
+}

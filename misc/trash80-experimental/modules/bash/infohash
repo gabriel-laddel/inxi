@@ -1,0 +1,209 @@
+#!/bin/bash
+# retreive system information from various places
+
+####  REQUESTS  ####
+## Dislplay drive usage, per drive
+## Display desktop manager (ie KDE, Gnome, Flux, etc)
+## Create config file remembering users requests (ie, colors, verbosity, etc){.infohashrc} -s
+## Allow user to request system info be directed to a file. -p
+## levels of verbosity.  -v -vv -ev -evv  (verbose, very verbose, extreme verbose, extreme very verbose)
+#### -ev & -evv available only in cli, help reduce spam in irc
+## Allow color requests to be passed via command.  -c<XXXX>  (-c = default )
+## Pop-up to allow some remembered setup. -conf
+#### similar to -s option, but with gui {infohashrc}
+## Debug options . -debug & -debugkonv
+## Man page, help file.  man infohash, infohash --help, infohash -h (help will be cli or pop-up gui)
+## create a link with conky (show infohash on conky)
+## work on GB and MB on ram and hdd output so that it's automatic
+## function kilo_mega_giga() for determining kb, mb, mhz, gb, ghz (nested if, or elif)
+## 'free' bash command can be used to find ram usage
+## check to see if gawk can read functions (yes, see remove_erroneous_chars() )
+
+#### start infohash ####
+## will not run on systems with 2.4 kernel; 2.6 and above only
+## check to see if infohash is run in cli or irc.
+## The kernel does not support throttling of individual core frequencies(GHz).
+## It can use each core as needed, but the frequencies(GHz) of each will match.
+## Don't confuse usage(%) with frequency(GHz).
+## Multi-core cpu's in flavors of 4,6,and 8 need only one line to show the core type and this will reduce the spam output
+## F is field separator, i.e ':', $NF (here) means the last field in the line
+
+
+remove_erroneous_chars()
+{
+## this removes newline and pipes
+## RS is input record separator
+## gsub is substitute;
+	gawk 'BEGIN { RS="" } { gsub(/\n$/,"");         ## (newline; end of string) with (nothing)
+									gsub(/\n/," ");         ## (newline) with (space)
+									gsub(/^ *| *$/, "");    ## (pipe char) with (nothing)
+									gsub(/  +/, " ");       ## ( +) with (space)
+									gsub(/ [ ]+/, " ");     ## ([ ]+) with (space)
+									gsub(/^ +| +$/, "");    ## (pipe char) with (nothing)
+									printf $0 }' "$1"       ## prints (returns) cleaned input
+}
+
+##############################################################################
+#########################     CPU functions       ############################
+##############################################################################
+
+
+####  BEGIN retreiving cpu infomation from /proc/cpuinfo from indicated value row, second column; hence $2 (field two) ####
+get_cpu_model()
+{
+	if [[ -e /proc/cpuinfo ]]; then
+		gawk -F': ' 'BEGIN {IGNORECASE=1} /^model name/ { cpu_model = $2 } END { print cpu_model }' /proc/cpuinfo | uniq
+	fi
+}
+
+get_cpu_freq()
+{
+	if [[ -e /proc/cpuinfo ]]; then
+		gawk -F': ' 'BEGIN {IGNORECASE=1} /^cpu MHz/ { cpu_freq = $2 } END { print cpu_freq }' /proc/cpuinfo | uniq
+	fi
+}
+
+get_cpu_cache_size() ## send to kilo_mega_giga()
+{
+	if [[ -e /proc/cpuinfo ]]; then
+		gawk -F': ' 'BEGIN {IGNORECASE=1} /^cache size/ { cpu_cache = $2 } END { print cpu_cache }' /proc/cpuinfo | uniq
+	fi
+}
+
+get_cpu_bogomips()
+{
+	if [[ -e /proc/cpuinfo ]]; then
+		gawk -F': ' 'BEGIN {IGNORECASE=1} /^bogomips/ { cpu_bogomips = $2 } END { print cpu_bogomips }' /proc/cpuinfo | uniq
+	fi
+}
+
+get_cpu_core_count()
+{
+	core_count=$(grep -c "cpu cores" /proc/cpuinfo| cut -d':' -f2) # count the number of processors given
+	if [ -z $core_count ]; then
+		$core_count=1
+	fi
+		echo $core_count
+}
+
+cpu_32_64_bit_check()
+{
+## look in /proc/cpuinfo "flags:" section for the flag "lm" which is the flag for 64bit processor
+	bit_32_64=$(grep "flags" /proc/cpuinfo | grep -ic ' lm ')
+	if [ $bit_32_64 -gt 0 ]; then
+		bit_32_64="64 bit"
+	else
+		bit_32_64="32 bit"
+	fi
+	echo $bit_32_64
+}
+#### END retreive cpu info from /proc/cpuinfo  ##############################################################################
+
+give_cpu_core_alpha_count()
+{
+## Because of the upcoming release of cpus with core counts over 6, a count of cores is given after Deca (10)
+## retreive the core count, if given, and returns a numeric value, then returns the alpha-word value
+	cpu_core_count=$(get_cpu_core_count)
+
+	case $cpu_core_count in
+		1) cpu_alpha_count="Single ";;
+		2) cpu_alpha_count="Dual ";;
+		3) cpu_alpha_count="Triple ";;
+		4) cpu_alpha_count="Quad ";;
+		5) cpu_alpha_count="Penta ";;
+		6) cpu_alpha_count="Hexa ";;
+		7) cpu_alpha_count="Hepta ";;
+		8) cpu_alpha_count="Octa ";;
+		9) cpu_alpha_count="Ennea ";;
+		10) cpu_alpha_count="Deca ";;
+		*) cpu_alpha_count="Multi ";;
+	esac
+
+	core_count="$cpu_alpha_count Core"
+	echo $core_count
+}
+
+##############################################################################
+#####################     Mass Storage functions       #######################
+##############################################################################
+
+get_ide_hdd_params()
+{
+## check for the presense of ide folder found on most older non-sata systems (libata for info)
+	if [ -e /proc/ide/ide0 ];then
+		for I in /proc/ide/ide*/hd*; do
+				if [[ -e $I/media ]]; then
+					if [[ $(remove_erroneous_chars $I/media) = disk ]]; then
+						ide_drives="${ide_drives}${ide_drives+,}$(remove_erroneous_chars $I/model)"
+					fi
+				fi
+		done
+		echo $ide_drives
+	fi
+}
+
+get_drive_size()
+{
+## searches /proc/partitions for any mounted drive, i.e. hda, sda, hdb, sdb,etc; includes IDE, sata, scsi
+## does not look for individual partitions  ## LOOK for individual drives(partitions?) and return data
+## returns value in GigaBytes without any decimal
+## Multiply by 1.024 to give "marketing" size, i.e. size on box vs formated size
+## REMOVE the divide by 1,000,000 and let kilo_mega_giga() do it
+if [[ -e /proc/partitions ]]; then
+	gawk -F' ' '
+		$4 ~ /^[hs]d[a-z]$/ { drive_size+=$3 }
+		## $4 is the drive name/type (i.e. hda, sda)
+	END {
+		printf "%1.0f\n", (drive_size/1000000)
+		## "%1.0f" removes decimals; then divide by 1,000,000 to get GB !! send to kilo_mega_giga()
+	}
+	' /proc/partitions
+fi
+}
+
+get_drives_available_space()
+{
+## this will get the listed "Used" amounts from 'df' then add the ammounts for all drives
+## given in KB
+	if [[ $(get_drive_size) -gt 0 ]]; then
+		df | gawk ' { if (/^\/dev\/([hs]d[a-z][0-9]+)/) { c += $3 } }
+			END { print c }'
+	fi
+}
+
+percent_drive_usage()
+{
+## Given as % used; see functions get_drive_size() and get_drives_available_space() for more infomation
+if [[ $(get_drive_size) -gt 0 ]]; then
+	echo "$(($(get_drives_available_space)/$(get_drive_size)/10000))"
+fi
+}
+
+get_libata_hdd_params()
+{
+## retreives hdd device if field one is ATA type (sata compatibility mode) or scsi device
+	if [[ -e /proc/scsi/sg/device_strs ]]; then  ## check for this files existence;
+		gawk -F'\t' ' BEGIN { IGNORECASE=1 }
+		$1 ~ /^ata|scsi/    { print $2 }
+		' /proc/scsi/sg/device_strs
+	fi
+}
+
+get_libata_usb_params()
+{
+## does the same as get_libata_hdd_params() but
+## retreives usb and cd/dvd r/w  (NOT ata or scsi)
+	if [[ -e /proc/scsi/sg/device_strs ]]; then
+		gawk -F'\t' ' BEGIN { IGNORECASE=1 }
+		$1 !~ /^ata|scsi/    { print $1" "$2 }
+		' /proc/scsi/sg/device_strs
+	fi
+}
+
+##############################################################################
+#####################    Sample Output (to cli)   ############################
+##############################################################################
+
+clear
+echo $(give_cpu_core_alpha_count)" "$(cpu_32_64_bit_check)" "$(get_cpu_model)" "$(get_cpu_freq)" "$(get_cpu_cache_size)" "$(get_cpu_bogomips)" bogomips"
+echo "Drives: "$(get_ide_hdd_params)" "$(get_libata_hdd_params)" "$(get_libata_usb_params)": Size "$(get_drive_size)"GB: "$(percent_drive_usage)"% used"

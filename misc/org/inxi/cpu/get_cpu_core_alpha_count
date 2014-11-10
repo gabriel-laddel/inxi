@@ -1,0 +1,39 @@
+#!/bin/bash
+
+VERSION="2010.12.7"
+STABILITY="ALPHA"
+
+################################################		TESTING SECTION
+## remove for release
+#INXI_HOME="$HOME/Applications/inxi/modules"
+#MODULES="$INXI_HOME/org/inxi/cpu"
+#RESOURCES="$INXI_HOME/org/inxi/resources"
+
+#source $RESOURCES/inxi_globals
+#source $RESOURCES/inxi_dehash
+
+#source $MODULES/get_cpu_physical_core_count
+#source $MODULES/get_cpu_ht_state
+############################################		END TESTING SECTION
+
+get_cpu_core_alpha_count()
+{
+## Because of the upcoming release of cpus with core counts over 6, a count of cores is given after Deca (10)
+	local pysical_cpu_count=$1
+	
+	case $pysical_cpu_count in # match the numberic value to an alpha value
+		1) cpu_alpha_count="Single";;
+		2) cpu_alpha_count="Dual";;
+		3) cpu_alpha_count="Triple";;
+		4) cpu_alpha_count="Quad";;
+		5) cpu_alpha_count="Penta";;
+		6) cpu_alpha_count="Hexa";;
+		7) cpu_alpha_count="Hepta";;
+		8) cpu_alpha_count="Octa";;
+		9) cpu_alpha_count="Ennea";;
+		10) cpu_alpha_count="Deca";;
+		*) cpu_alpha_count="Multi";;
+	esac
+	
+	echo "$cpu_alpha_count"
+}

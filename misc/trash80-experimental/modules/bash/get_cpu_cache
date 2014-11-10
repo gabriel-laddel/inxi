@@ -1,0 +1,52 @@
+#!/bin/bash
+
+FILE_CPU_CACHE='/sys/devices/system/cpu/cpu0/cache'
+FILE_CPU_CACHE_SIZE=$FILE_CPU_CACHE'/index0/size'
+
+
+## return the raw per core cache
+## L1 cache is split in two identical sizes, two per core
+## L2 cache is one per core, if L3 exists, otherwise it may be shared
+## L3 is one per processor at this time.
+## We need core count and processor count, and possibly Brand (AMD, Intel)
+## maybe even series, ie i7, Phenom II
+	
+get_cpu_cache()
+{
+	#eval $LOGFS
+	
+	if [[ -e $FILE_CPU_CACHE_SIZE ]]; then
+		cache_sys_files=$(ls $FILE_CPU_CACHE)
+		cache=0
+		for i in $cache_sys_files; do
+			cache+=":"$( 
+				gawk ' 
+					BEGIN { 
+							FS="\n"
+					} END { 
+							sub(/[Kk]/, ""); print $0
+					} 
+				' $FILE_CPU_CACHE/$i/size
+			)
+		done
+		
+		echo $cache | gawk ' 
+							BEGIN { 
+								FS=":"
+								ORS=" "
+							} {
+								L1 = $2
+								L2 = $4 
+								L3 = $5
+							} END { 
+								print "cpu_cache_L1:"L1*2
+								print "cpu_cache_L2:"L2
+								print "cpu_cache_L3:"L3
+								print "cpu_cache_Total:"L1*2*4+L2*4+L3
+							}
+						'
+	fi
+	
+	#log_function_data "get_cpu_cache:$cpu_cache"
+	#eval $LOGFE	
+}

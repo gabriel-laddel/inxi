@@ -1,0 +1,34 @@
+#summary List of inxi dependencies - see also Recommends for other apps used.
+----
+  * *DEPENDENCIES* (Required for inxi to run)
+----
+
+Package names in (...) are the Debian Squeeze package name. Check your distro for proper package name by doing this: which -application- then find what package owns that application file.
+
+Please check the inxi top comment header for the latest Depends/Recommends listing, it should always be up to date, unlike this wiki page.
+
+Note that all graphics packages previously labeled Depends have been made Recommends because inxi should be able to run on headless or X-less systems, as a system utility. Distro maintainers can decide what they want to do with the X utilities, if it's possible to test if X packages are installed, and if so, install these Recommends as Dependencies, that would be ideal.
+
+As of version 1.6.6, you can run the start option --recommends which will print out all dependencies and recommends, along with some other information, then tell you which package you need to install to add that feature.
+
+----
+
+     * bash >=3.0 (bash)
+     * df, readlink, stty, tr, uname, wc (coreutils)
+     * gawk (gawk)
+     * grep (grep)
+     * lspci (pciutils)
+     * free, ps, uptime (procps)
+     * sed (sed)
+----
+  * Also the proc filesystem should be present and mounted. As well as /sys, which is used to collect a variety of system data, especially for -M and -d.
+----
+  * Apparently unpatched bash 3.0 has arrays broken; bug reports:
+     * [http://ftp.gnu.org/gnu/bash/bash-3.0-patches/bash30-008]
+     * [http://lists.gnu.org/archive/html/bug-bash/2004-08/msg00144.html]
+----
+  * Arrays work in bash 2.05b, but "egrep -m" does not.
+
+----
+To go to wiki list  try clicking
+[http://code.google.com/p/inxi/w/list here]

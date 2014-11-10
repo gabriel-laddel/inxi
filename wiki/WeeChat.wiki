@@ -1,0 +1,40 @@
+#summary IRC client.
+
+= Introduction =
+
+home page
+
+http://www.weechat.org/
+
+=== Extra Information ===
+
+http://www.weechat.org/files/doc/stable/weechat_quickstart.en.html
+
+http://www.weechat.org/files/doc/stable/weechat_user.en.html#running_weechat
+
+plugins (needed for python scripts)
+
+http://www.weechat.org/files/doc/stable/weechat_user.en.html#scripts_plugins
+
+=== Easy way to install shell.py ===
+
+In a web browser, Click on the download button at http://www.weechat.org/scripts/source/stable/shell.py.html/
+
+Make the script executable by
+{{{
+chmod +x shell.py
+}}}
+
+Move it to your home folder /.weechat/python/autoload/
+
+logout
+
+start weechat with
+{{{
+weechat-curses
+}}}
+Top of screen should say what pythons scripts have loaded... includes shell
+
+----
+To go to wiki list  try clicking
+[http://code.google.com/p/inxi/w/list here]

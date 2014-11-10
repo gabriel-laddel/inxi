@@ -1,0 +1,52 @@
+#!/bin/bash
+
+VERSION="2010.12.7"
+STABILITY="ALPHA"
+
+
+################################################		TESTING SECTION
+## remove for release
+
+############################################		END TESTING SECTION
+
+## return the raw per core cache
+## L1 cache is split in two identical sizes, two per core
+## L2 cache is one per core, if L3 exists, otherwise it may be shared
+## L3 is one per processor at this time.
+## We need core count and processor count, and possibly Brand (AMD, Intel)
+## maybe even series, ie i7, Phenom II
+	
+get_cpu_raw_cache() {
+	
+	num_of_cores=$1
+	
+	cache_sys_files=$(ls $FILE_CPU_CACHE)
+	cache=0
+	for i in $cache_sys_files; do
+		cache+=":"$( 
+			gawk ' 
+				BEGIN { 
+						FS="\n"
+				} END { 
+						sub(/[Kk]/, ""); print $0
+				} 
+			' $FILE_CPU_CACHE/$i/size
+		)
+	done
+	
+	gawk -v num=$num_of_cores ' 
+		BEGIN { 
+			FS=":"
+			ORS=" "
+		} {
+			L1 = $2
+			L2 = $4 
+			L3 = $5
+		} END { 
+			print "L1:"L1*2
+			print "L2:"L2
+			print "L3:"L3
+			print "Total:"L1*2*num+L2*num+L3
+		}
+	' <<< $cache
+}

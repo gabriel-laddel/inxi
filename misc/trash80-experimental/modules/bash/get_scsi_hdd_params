@@ -1,0 +1,12 @@
+#!/bin/bash
+
+get_libata_hdd_params()
+{
+	if [[ -e /proc/scsi/sg/device_strs ]]; then
+		gawk -F'\t' ' BEGIN { IGNORECASE=1 }
+		$1 ~ /^ata|scsi/    { print $2 }   ## prints out hdd device if field one is ATA type (sata compatibility mode) or prints out scsi device
+		' /proc/scsi/sg/device_strs
+	fi
+}
+
+get_libata_hdd_params

@@ -1,0 +1,51 @@
+#!/bin/bash
+
+VERSION="2010.12.7"
+STABILITY="ALPHA"
+
+# inxi_globals, nothing here is changed by the user
+
+INXI_HOME="$HOME/Applications/inxi/modules"
+RESOURCES="$INXI_HOME/org/inxi/resources"
+source $RESOURCES/inxi_dehash
+source $RESOURCES/inxi_sources
+
+# cat /sys/devices/system/cpu/cpu*/topology/thread_siblings_list
+alias_avail_procs=$( cat /sys/devices/system/cpu/present )
+
+## as of 2010, CPUs have equal cache across (v)cores
+## so we'll just get the cache from the first core the kernel finds
+CPU_SYS_DATA="/sys/devices/system/cpu"
+FILE_CPU_CACHE="$CPU_SYS_DATA/cpu0/cache"
+FILE_CPU_CACHE_SIZE="$FILE_CPU_CACHE/index0/size"
+FILE_CPUINFO='/proc/cpuinfo'
+
+CPU_MAX_FREQ="$CPU_SYS_DATA/cpu0/cpufreq/cpuinfo_max_freq"
+CPU_MIN_FREQ="$CPU_SYS_DATA/cpu0/cpufreq/cpuinfo_min_freq"
+CPU_CUR_FREQ="/cpufreq/scaling_cur_freq"
+
+## gives cpu cores, first-last, ie 0-7 for 8 vcore cpu
+CPU_PRESENT="$CPU_SYS_DATA/present"
+CPU_TOPOLOGY="/topology/core_id"
+CPU_THREAD_SIBLINGS="$CPU_SYS_DATA/cpu*/topology/thread_siblings_list"
+CPU_PHYSICAL_ID="/topology/physical_package_id"
+alias_cpu_ht=$( cat $CPU_THREAD_SIBLINGS )
+
+
+#######################################################		HASH GLOBALS
+## These globals must be last
+
+PHYSICAL_CORE_COUNT=$(inxi_dehash "$(get_cpu_physical_core_count)" "cpu_physical_core_count")
+RAW_CPU_COUNT=$(inxi_dehash "$(get_cpu_raw_core_count)" "cpu_raw_core_count")
+HT_STATUS=$(inxi_dehash "$(get_cpu_ht_state)" "cpu_ht_state")
+
+#######################################################		BANS DATA
+# Precede a banword with $'\2' to prevent it from being subject to automated escaping by the make_ban_lists routine
+# $'\1' gets weird results :
+# user@host $ ARR=($'\x01'"one two" three four); echo ${ARR[0]} | hd -v
+# 00000000  01 01 6f 6e 65 20 74 77  6f 0a                    |..one two.|
+A_NORMAL_BANS=( corporation communications gmbh technologies technology group $'\2'"\<ltd\>" ltd. $'\2'"\<inc\>" inc. $'\2'\<co\> co. "(tm)" "(r)" "®" $'\2'"\(rev ..\)" )
+A_CPU_BANS=( @ cpu deca 'dual core' dual-core 'tri core' tri-core 'quad core' quad-core ennea genuine hepta hexa multi octa penta 'processor' processor single triple $'\2'"[0-9.]+ *[MmGg][Hh][Zz]" )
+
+BAN_LIST_NORMAL=$( make_ban_lists "${A_NORMAL_BANS[@]}" ) 
+BAN_LIST_CPU=$( make_ban_lists "${A_CPU_BANS[@]}" )

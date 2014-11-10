@@ -1,0 +1,25 @@
+#!/bin/bash
+
+VERSION="2010.12.10"
+STABILITY="ALPHA"
+
+################################################		TESTING SECTION
+## remove for release
+#INXI_HOME="$HOME/Applications/inxi/modules"
+#RESOURCES="$INXI_HOME/org/inxi/resources"
+
+#source $RESOURCES/inxi_globals
+############################################		END TESTING SECTION
+
+## return the total number of all cores, including virtual cores
+get_cpu_raw_core_count() {
+	
+	gawk -v key="raw_core_count" '
+		BEGIN {
+			FS = "-"
+		}{
+			num_of_core = $2 + 1
+		}; END {
+			printf "%s", num_of_core
+		}' $CPU_PRESENT ## from inxi_globals
+}

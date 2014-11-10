@@ -1,0 +1,137 @@
+#!/bin/bash
+
+gawk '
+		BEGIN {
+			# ':' between one or more spaces, tabs, newlines
+			FS = "[ \t\n]+:[ \t\n]+" 
+			IGNORECASE = 1
+			ORS = ";"
+			num_of_cores = 0
+			num_of_processors = 0
+			num_of_cpus = 0
+			core_id[0]
+			processor_id[0]
+			cpu_id[0]
+			cpu_socket_type = "-"
+			iter = 0
+		}
+		# When incrementing iterator, do so in the last record read
+		# Ignore order below, the iterator will be increased when gawk
+		# reads the record in which iterator appears.  This causes miscounts.
+		# if /proc/cpuinfo changes pattern, this is borked
+		# array of logical processors, both HT and physical
+		/^processor/ {
+			processor_id[iter] = $2
+		}
+
+		/^vendor_id/ {
+			gsub(/genuine|authentic/,"",$2)
+			cpu_brand_vendor = tolower( $2 )
+		}
+		
+		/^model name/ {
+			gsub(/'"$BAN_LIST_NORMAL"'/, "", $2 )
+			gsub(/'"$BAN_LIST_CPU"'/, "", $2 )
+			gsub(/,/, " ", $2 )
+			gsub(/^ +| +$/, "", $2 )
+			gsub(/ [ \t]+/, " ", $2 )
+			brand_model_cpu = $2
+		}
+		
+		/^cache size/ {
+			reported_cpu_cache = $2
+		}
+		
+		# array of physical cpus ids
+		/^physical/ {
+			cpu_id[iter] = $2
+		}
+		
+		# array of core ids
+		/^core id/ {
+			core_id[iter] = $2
+		}
+		
+		/^flags/ {
+			cpu_option_flags = $2
+		}
+
+		/^bogomips/ {
+			cpu_bogus_mips = $2
+			iter++
+		}
+		END {
+			## 	Look thru the array and filter same numbers.
+			##	only unique numbers required
+			## 	this is to get an accurate count
+			##	we are only concerned with array length
+			
+			i = 0
+			## count unique processors ##
+			for ( i in processor_id ) {
+				procHolder[processor_id[i]] = 0
+			}
+			i = 0
+			for ( i in procHolder ) {				
+				num_of_processors++
+			}
+			
+			i = 0
+			## count unique physical cpus ##
+			for ( i in cpu_id ) {
+				cpuHolder[cpu_id[i]] = 0
+			}
+			i = 0
+			for ( i in cpuHolder ) {				
+				num_of_cpus++
+			}
+			
+			i = 0		
+			## count unique cores ##
+			for ( i in core_id ) {
+				coreHolder[core_id[i]] = 0
+			}
+			i = 0
+			for ( i in coreHolder ) {				
+				num_of_cores++
+			}
+			
+			####################################################################
+			# 				algorithm
+			# if > 1 processor && processor id (physical id) == core id then Hyperthreaded (HT)
+			# if > 1 processor && processor id (physical id) != core id then Multi-Core Processors (MCP)
+			# if > 1 processor && processor ids (physical id) > 1 then Multiple Processors (SMP)
+			# if = 1 processor then single core/processor Uni-Processor (UP)
+			if ( num_of_processors > 1 )
+			{
+				if ( num_of_processors == (num_of_cores * 2 ))
+				{
+					cpu_socket_type = cpu_socket_type "HT-"
+				}
+				if (( num_of_processors == num_of_cores ) ||
+					( num_of_cpus < num_of_cores))
+				{
+					cpu_socket_type = cpu_socket_type "MCP-"
+				}
+				if ( num_of_cpus > 1 )
+				{
+					cpu_socket_type = cpu_socket_type "SMP-"
+				}
+			} else {
+				cpu_socket_type = cpu_socket_type "UP-"
+			}			
+			
+			print cpu_socket_type			#1
+			print num_of_cpus				#2
+			print num_of_cores				#3
+			print num_of_processors			#4
+			print brand_model_cpu			#5
+			print reported_cpu_cache		#6
+			print cpu_option_flags			#7
+			print cpu_bogus_mips			#8
+			print cpu_brand_vendor			#9
+			for ( i = 0; i < iter; i++ ) {	#>=10
+				print cpu_core_speed[i] 
+			}
+		}
+		' /proc/cpuinfo

@@ -1,0 +1,134 @@
+#summary Inxi script configuration methods and variables.
+
+=Inxi Script Configuration=
+Inxi features a very wide range of user configurable options. For clarity, let us assume your user name is fred for the rest of this page when it comes to system paths and so on.
+
+Please note, for distributions or packagers that include inxi, they might want to take a look at creating global configurations that more accurately suite their defaults, for example the range of colors that can be used for each purpose. See the options page for more information about colors. In general I suggest running the -c color selector to see what the colors really look like before setting them, and it's easy to use that tool to set the config file data per user.
+
+==Script Configuration Files==
+You can create inxi configuration files, or let inxi create them for you if you use the -c 94 through 99 color selector.
+
+As usual, inxi, allows for either a global configuration file, located at:
+
+{{{
+/etc/inxi.conf
+}}}
+or specific user, including root, configuration files, located at:
+{{{
+$HOME/.inxi/inxi.conf
+}}}
+
+So let's say you, fred, are logged in as fred, this would put your inxi configuration directory/file here:
+{{{
+/home/fred/.inxi/inxi.conf
+}}}
+
+If you wanted the root user to have some different defaults, you'd create/edit this file/directory:
+{{{
+/root/.inxi/inxi.conf
+}}}
+
+Please note the . in the inxi directory, that's a hidden file type, also as usual. Everything inxi needs will be found in there, including debugging or log files if you run inxi with those options activated.
+
+Note that file is always checked for, first the /etc, then the specific logged in user, and anything in those will override the script defaults, but will in turn be overridden if you start inxi with an overriding option.
+
+==Short List of Script Built in Default Variables for Change==
+Keep in mind, ALL top script global variables can be set, but some are dynamically loaded during the script's execution, so there's no point in setting those in your config files.
+
+As with normal Bash, you can use comments in your config files. Comments use a # mark before the commented text.
+
+===CPU Spindown===
+This lets the CPU 'spin down' as it were to avoid the CPU speed spike that inxi itself running can cause. 0.3 seconds seems to be enough for most systems. The main function here is to see the CPU speed as it would be if inxi were not running.
+{{{
+CPU_SLEEP='0.3' 
+}}}
+
+===IRC Filter String===
+This value is what is displayed when either the IRC filter or the -z triggered filter hides some of the user data.
+{{{
+FILTER_STRING='<filter>'
+}}}
+
+===Inxi Line Lengths===
+These can be used to alter how long the lines are, in characters, before they wrap. Most of the lines will wrap when they have enough data to form a new line. Usually you want to leave IRC as is, or even shorter, because you have no control over how wide other IRC user's displays are. However, for your own systems, you might find it useful to alter the COLS_MAX_CONSOLE to suite your taste.
+
+COLS_MAX_CONSOLE will also set the default max width for the help/version output.
+
+However, for help/version, that width is set dynamically to fit into your terminal/console width, as will more of the inxi line widths in the main output (improved line wraps based on dynamic sizing in console/terminal started 2014-03-13, should be done by 2014-04). Note that the max number dictates the maximum columns that will be used in the output.
+
+2014-03-14: Changed variable names to be more sensible.
+{{{
+COLS_MAX_CONSOLE='115'
+COLS_MAX_IRC='105'
+}}}
+
+NOTE: the following variables are deprecated, but they will keep working if you have already created a conf option for default widths. inxi translates those internally to the new COLS ones.
+{{{
+LINE_MAX_CONSOLE='115'
+LINE_MAX_IRC='105'
+}}}
+
+===Data Field Separators===
+This value adds separators to output, for example:
+{{{
+System:    Host: moxie Kernel: 2.6.37-2.dmz.1-liquorix-686 i686 (32 bit, gcc: 4.4.5)
+}}}
+Only sub fields, not line/item starters will be affected. That is, Host: would not be changed, but Kernel: would become Kernel~ if you changed the separator from ':' to '~'
+{{{
+SEP3_CONSOLE=':'
+SEP3_IRC=''
+}}}
+
+Please be aware that many IRC clients add emoticons, so it's generally a BAD idea to add any IRC separator since it may trigger a happy face for other users, or whatever emoticon it is.
+
+===Colors, Colors, and More Colors!===
+These can all be adjusted on a per user basis using the
+inxi -c 94 through 99 options.
+
+In general I think it's easier to see the colors using the color selector tool, but if you already know what color scheme you want, or if it's for a distribution or package, of course you can create any color defaults you want.
+
+It's very important NOT to use any other than the basic set of color schemes offered by inxi irc color selectors because the other ones are often not visible to other users on IRC even if you can see it fine  on your system. This applies to the default and the IRC colors.
+
+See inxi's help menu (-h or --help) for full explanation of the various colors and schemes, and please run it yourself to see what the colors really look like.
+
+{{{
+DEFAULT_COLOR_SCHEME=2
+GLOBAL_COLOR_SCHEME=''
+IRC_COLOR_SCHEME=''
+IRC_CONS_COLOR_SCHEME=''
+IRC_X_TERM_COLOR_SCHEME=''
+CONSOLE_COLOR_SCHEME=''
+VIRT_TERM_COLOR_SCHEME=''
+}}}
+
+===Script Output Indentation===
+You can change the default inxi indentation of the single line items, but be aware that it won't really work right if it's less than the given 10, but if you want a bigger indentation you can do that. Not recommended to change it though.
+{{{
+INDENT=10
+}}}
+
+===Sensors Output Adjustments - Expert Only===
+For specific cases where you aren't getting consistent sensors output, that usually happens when cpu / fan speed in sensors output aren't labeled clearly, just with say, temp1 and fan1, inxi has to guess which is which, this lets you hard code that data in, so it will always use the right sensors for cpu.
+
+Only use this if the output of sensors shows no specific cpu for fan or temp, and if it does show for example, temp1/temp2, fan1 fan2.
+{{{
+SENSORS_CPU_NO=''
+}}}
+
+===Fine Tunings===
+You can tweak slightly the output of the default inxi short form output by changing this separator. But be warned, be careful, a lot of characters will trigger those annoying emoticons in irc clients of others who are viewing the output. '~' is pretty safe.
+{{{
+SEP1='~'
+}}}
+
+If you're shy and don't want to show people your hostname in the -S line, you can set this to false, and it won't show that information. If you want to temporarily override this, use: inxi -! 32
+{{{
+B_SHOW_HOST='false'
+}}}
+
+==Have Fun!==
+And that's about it for variables you'd have any reason to change, or that would be potentially useful. 
+
+----
+To go to wiki list try clicking
+[http://code.google.com/p/inxi/w/list here]

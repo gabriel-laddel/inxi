@@ -1,0 +1,59 @@
+#!/bin/bash
+
+VERSION="2010.12.7"
+STABILITY="ALPHA"
+
+#######################################################		RESOURCES
+INXI_HOME="$HOME/Applications/inxi/modules"
+RESOURCES="$INXI_HOME/org/inxi/resources"
+source $RESOURCES/inxi_sources
+source $RESOURCES/inxi_globals
+
+#	cpu_store: {
+#		raw_core_count: 		<num>,
+#		ht_state:				<state>,
+#		physical_core_count:	<pnum>,
+#		core_alpha_count:		<anum>,
+#		raw_cache:				<cache>,
+#		core_freq:				<freq>,
+#		brand:					<brand>,
+#		socket_count			<sknum>,
+#	}
+
+########################################################################
+raw_core_count=$(get_cpu_raw_core_count)
+
+########################################################################
+ht_state=$(get_cpu_ht_state)
+
+########################################################################
+physical_core_count=$(get_cpu_physical_core_count $raw_core_count $ht_state)
+
+########################################################################
+socket_count=$(get_cpu_socket_count $raw_core_count)
+
+########################################################################
+multicore_data=$(get_cpu_multicore_data $socket_count $physical_core_count)
+
+########################################################################
+core_freq=$(get_cpu_core_freq $physical_core_count)
+
+########################################################################
+raw_cache=$(get_cpu_raw_cache $physical_core_count)
+
+########################################################################
+core_alpha_count=$(get_cpu_core_alpha_count $physical_core_count)
+
+########################################################################
+brand=$(get_cpu_brand)
+
+
+echo $raw_core_count 
+#echo $ht_state 
+echo $socket_count
+echo $physical_core_count
+echo $core_alpha_count
+echo $core_freq
+echo $raw_cache
+echo $brand
+echo "CPU: $core_alpha_count-Core $brand (-$ht_state-$multicore_data-) Cache $raw_cache"

@@ -1,0 +1,84 @@
+#!/bin/bash
+# get CPU params and Core Count
+
+## check to see if infohash is run in cli or irc.
+## The kernel does not support throttling of individual core frequencies(GHz).
+## It can use each core as needed, but the frequencies(GHz) of each will match.
+## Don't confuse usage(%) with frequency(GHz).
+## Multi-core cpu's in flavors of 4,6,and 8 need only one line to show the core type and this will reduce the spam output
+## F is field separator, i.e ':', $NF (here) means the last field in the line
+get_cpu_model()
+{
+    if [[ -e /proc/cpuinfo ]]; then
+        gawk -F': ' 'BEGIN {IGNORECASE=1} /^model name/ { cpu_model = $2 } END { print cpu_model }' /proc/cpuinfo | uniq
+    fi
+}
+
+get_cpu_freq()
+{
+    if [[ -e /proc/cpuinfo ]]; then
+        gawk -F': ' 'BEGIN {IGNORECASE=1} /^cpu MHz/ { cpu_freq = $2 } END { print cpu_freq }' /proc/cpuinfo | uniq
+    fi
+}
+
+get_cpu_cache_size()
+{
+    if [[ -e /proc/cpuinfo ]]; then
+        gawk -F': ' 'BEGIN {IGNORECASE=1} /^cache size/ { cpu_cache = $2 } END { print cpu_cache }' /proc/cpuinfo | uniq
+    fi
+}
+
+get_cpu_bogomips()
+{
+    if [[ -e /proc/cpuinfo ]]; then
+        gawk -F': ' 'BEGIN {IGNORECASE=1} /^bogomips/ { cpu_bogomips = $2 } END { print cpu_bogomips }' /proc/cpuinfo | uniq
+    fi
+}
+
+get_cpu_core_count()
+{
+    core_count=$(echo $(grep -c "cpu cores" /proc/cpuinfo| cut -d':' -f2) # count the number of processors given
+    echo $core_count
+}
+
+give_cpu_core_alpha_count()
+{
+## Because of the upcoming release of cpus with core counts over 6, a count of cores is given after Deca (10)
+    if [[ $(get_cpu_core_count) -lt 2 ]]; then
+      cpu_core_count=1
+    else
+        cpu_core_count=$(get_cpu_core_count)
+    fi
+
+    case $cpu_core_count in # match the numberic value to an alpha value
+        1) cpu_alpha_count="Single ";;
+        2) cpu_alpha_count="Dual ";;
+        3) cpu_alpha_count="Triple ";;
+        4) cpu_alpha_count="Quad ";;
+        5) cpu_alpha_count="Penta ";;
+        6) cpu_alpha_count="Hexa ";;
+        7) cpu_alpha_count="Hepta ";;
+        8) cpu_alpha_count="Octa ";;
+        9) cpu_alpha_count="Ennea ";;
+       10) cpu_alpha_count="Deca ";;
+        *) cpu_alpha_count="Multi ";;
+    esac
+
+    core_count="$cpu_alpha_count Core"
+    echo $core_count
+}
+
+cpu_64_32_bit_check()
+{
+## look in /proc/cpuinfo "flags:" section for the flag "lm" which is the flag for 64bit processor
+    bit_32_64=$(grep "flags" /proc/cpuinfo | grep -ic ' lm ')
+    if [ $bit_32_64 -gt 0 ]; then
+        bit_32_64="64 bit"
+    else
+        bit_32_64="32 bit"
+    fi
+    echo $bit_32_64
+}
+
+get_cpu_core_count
+cpu_64_32_bit_check

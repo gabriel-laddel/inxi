@@ -1,0 +1,30 @@
+$ find /dev/disk -exec ls -ld {} \;
+drwxr-xr-x 5 root root 100 Oct 18 11:46 /dev/disk
+　
+drwxr-xr-x 2 root root 80 Oct 18 11:46 /dev/disk/by-uuid
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-uuid/511c1c5e-611b-459a-88e1-39a18de8c8c0 -> ../../sda1
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-uuid/82e93de6-0625-4c3f-bbf7-8ed5b56c176f -> ../../sda5
+　
+drwxr-xr-x 2 root root 160 Oct 18 15:49 /dev/disk/by-path
+lrwxrwxrwx 1 root root 9 Oct 18 15:49 /dev/disk/by-path/pci-0000:0b:00.0-ieee1394-0x0010100340000000:00042c:0000 -> ../../sdb
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part1 -> ../../sda1
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part5 -> ../../sda5
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part2 -> ../../sda2
+lrwxrwxrwx 1 root root 9 Oct 18 11:46 /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 -> ../../sda
+lrwxrwxrwx 1 root root 9 Oct 18 11:46 /dev/disk/by-path/pci-0000:00:1f.2-scsi-3:0:0:0 -> ../../sr0
+　
+drwxr-xr-x 2 root root 320 Oct 18 15:49 /dev/disk/by-id
+lrwxrwxrwx 1 root root 9 Oct 18 15:49 /dev/disk/by-id/ieee1394-0010100340000000:00042c:0000 -> ../../sdb
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-id/wwn-0x50014ee6571bf16b-part1 -> ../../sda1
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-id/scsi-SATA_WDC_WD7500BPKT-_WD-WX71A9131931-part1 -> ../../sda1
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-id/ata-WDC_WD7500BPKT-75PK4T0_WD-WX71A9131931-part1 -> ../../sda1
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-id/wwn-0x50014ee6571bf16b-part5 -> ../../sda5
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-id/scsi-SATA_WDC_WD7500BPKT-_WD-WX71A9131931-part5 -> ../../sda5
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-id/ata-WDC_WD7500BPKT-75PK4T0_WD-WX71A9131931-part5 -> ../../sda5
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-id/wwn-0x50014ee6571bf16b-part2 -> ../../sda2
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-id/scsi-SATA_WDC_WD7500BPKT-_WD-WX71A9131931-part2 -> ../../sda2
+lrwxrwxrwx 1 root root 10 Oct 18 11:46 /dev/disk/by-id/ata-WDC_WD7500BPKT-75PK4T0_WD-WX71A9131931-part2 -> ../../sda2
+lrwxrwxrwx 1 root root 9 Oct 18 11:46 /dev/disk/by-id/wwn-0x50014ee6571bf16b -> ../../sda
+lrwxrwxrwx 1 root root 9 Oct 18 11:46 /dev/disk/by-id/scsi-SATA_WDC_WD7500BPKT-_WD-WX71A9131931 -> ../../sda
+lrwxrwxrwx 1 root root 9 Oct 18 11:46 /dev/disk/by-id/ata-WDC_WD7500BPKT-75PK4T0_WD-WX71A9131931 -> ../../sda
+lrwxrwxrwx 1 root root 9 Oct 18 11:46 /dev/disk/by-id/ata-TSSTcorp_DVD+_-RW_TS-U633J_R7216GVBB67837 -> ../../sr0

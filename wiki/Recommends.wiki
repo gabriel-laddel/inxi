@@ -1,0 +1,40 @@
+#summary List of recommended applications for full feature support in inxi. See Dependencies for required application list.
+
+----
+  * *RECOMMENDS* (Needed to run certain features, listed by option)
+----
+
+Package names in (...) are the Debian Squeeze package name. Check your distro for proper package name by doing this: which -application- then find what package owns that application file.
+
+Please check the inxi top comment header for the latest Depends/Recommends listing, it should always be up to date, unlike this wiki page.
+
+Note that all graphics packages previously labeled Depends have been made Recommends because inxi should be able to run on headless or X-less systems, as a system utility. Distro maintainers can decide what they want to do with the X utilities, if it's possible to test if X packages are installed, and if so, install these Recommends as Dependencies, that would be ideal.
+
+As of version 1.6.6, you can run the start option --recommends which will print out all dependencies and recommends, along with some other information, then tell you which package you need to install to add that feature.
+
+----
+
+     * -A, -N - for output of usb audio/network card information: lsusb (usbutils)
+     * -Ax - for audio module version: modinfo (module-init-tools)
+     * -Dx - for hdd temp output (root only default): hddtemp (hddtemp)
+     * -S - for detecting running desktop: xprop (X11-utils)
+     For user level hdd temp output: sudo (sudo)
+
+     Note: requires user action for this feature to run as user (edit /etc/sudoers file)
+     * -G - full graphics output requires:  
+         * glxinfo (mesa-utils)
+         * xdpyinfo (x11-utils)
+         * xrandr (x11-xserver-utils)
+     * -i - IP information, local/wan - ip (iproute) (previous to 1.7.8, inxi used the deprecated tool: ifconfig (net-tools). Please note that so as to not break previous inxi installs, inxi still will use ifconfig if ip is missing, so you won't see any unexpected errors.
+     * -I (out of X) or -Ix (in X) - view current runlevel: runlevel (sysvinit)
+     * -o - for unmounted file system information in unmounted drives (root only default): file (file)
+     Note: requires user action for this feature to run as user (edit /etc/sudoers file)
+
+     For user level unmounted file system type output: sudo (sudo)
+     * -s   For any sensors output, fan, temp, etc: sensors (lm-sensors)
+     Note: requires setup of lm-sensors (sensors-detect and adding modules/modprobe/reboot,
+     and ideally, pwmconfig) prior to full output being available. 
+
+----
+To go to wiki list try clicking
+[http://code.google.com/p/inxi/w/list here]

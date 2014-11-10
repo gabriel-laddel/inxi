@@ -1,0 +1,34 @@
+#!/bin/bash
+
+VERSION="2010.12.10"
+STABILITY="ALPHA"
+
+################################################		TESTING SECTION
+## remove for release
+#INXI_HOME="$HOME/Applications/inxi/modules"
+#MODULES="$INXI_HOME/org/inxi/cpu"
+#RESOURCES="$INXI_HOME/org/inxi/resources"
+
+#source $RESOURCES/inxi_globals
+#source $RESOURCES/inxi_dehash
+
+#source $MODULES/get_cpu_physical_core_count
+#source $MODULES/get_cpu_ht_state
+############################################		END TESTING SECTION
+
+## get the floating point value of each core frequency 
+get_cpu_core_freq() 
+{
+	local pysical_cpu_count=$1
+	
+	for (( k=0; k<$pysical_cpu_count; k++ )); do
+		gawk -v key="${k}" '
+			BEGIN {								
+				ORS = " "
+			}{
+				this_cpu_freq = $0 / 1000
+			}; END {
+				printf "%s:%s ", key+1, this_cpu_freq
+			}' $CPU_SYS_DATA/cpu$k$CPU_CUR_FREQ
+	done
+}

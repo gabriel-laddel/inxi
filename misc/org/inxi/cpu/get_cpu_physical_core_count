@@ -1,0 +1,29 @@
+#!/bin/bash
+
+VERSION="2010.12.10"
+STABILITY="ALPHA"
+
+################################################		TESTING SECTION
+## remove for release
+#INXI_HOME="$HOME/Applications/inxi/modules"
+#MODULES="$INXI_HOME/org/inxi/cpu"
+#RESOURCES="$INXI_HOME/org/inxi/resources"
+
+#source $RESOURCES/inxi_globals
+#source $RESOURCES/inxi_dehash
+
+#source $MODULES/get_cpu_raw_core_count
+############################################		END TESTING SECTION
+
+## get total number of physical cores, HT infers 1/2 vcores
+get_cpu_physical_core_count()
+{
+	local rawCount=$1
+	local htState=$2
+	
+	if [[ $htState == 'HT' ]]; then
+		rawCount=$((rawCount/2))
+	fi
+		
+	echo "$rawCount"
+}

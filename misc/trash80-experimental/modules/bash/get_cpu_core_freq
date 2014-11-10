@@ -1,0 +1,33 @@
+#!/bin/bash
+
+INXI_HOME="$HOME/Applications/inxi/modules"
+source $INXI_HOME/inxi_aliases
+source $INXI_HOME/inxi_exports
+source $INXI_HOME/get_core_count
+source $INXI_HOME/inxi_dehash
+source $INXI_HOME/get_cpu_ht_state
+
+## get the floating point value of each core frequency 
+get_cpu_core_freq() 
+{
+	
+	core_ct=$(inxi_dehash "$(get_core_count)" "cpu_vcores_num")
+	bool_ht=$(inxi_dehash "$(get_cpu_ht_state)" "core_type")
+	
+	if [[ $bool_ht == 'HT' ]]; then
+		core_ct=$core_ct/2
+	fi
+	
+	for (( k=0; k<$core_ct; k++ )); do
+		gawk -v key="${k}" '
+			BEGIN {								
+				ORS = " "
+			}{
+				this_cpu_freq = $0 / 1000
+			}; END {
+				printf "%s:%s ", key, this_cpu_freq
+			}' $cpu_sys_data/cpu$k$cpu_cur
+	done
+}
+
+## working as of Dec 2, 2010

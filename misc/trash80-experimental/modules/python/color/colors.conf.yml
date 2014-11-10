@@ -1,0 +1,67 @@
+ansi:
+  foreground:
+    BLACK     : 30
+    RED       : 31
+    GREEN     : 32
+    YELLOW    : 33
+    BLUE      : 34
+    MAGENTA   : 35
+    CYAN      : 36
+    WHITE     : 37
+    RESET     : 39
+
+  background:
+    BLACK     : 40
+    RED       : 41
+    GREEN     : 42
+    YELLOW    : 43
+    BLUE      : 44
+    MAGENTA   : 45
+    CYAN      : 46
+    WHITE     : 47
+    RESET     : 49
+
+  style:
+    BRIGHT    : 1
+    DIM       : 2
+    NORMAL    : 22
+    RESET_ALL : 0
+
+irc:
+  foreground:
+    BLACK     : \x0301
+    DBLUE     : \x0302
+    DGREEN    : \x0303
+    GREEN     : \x0303
+    RED       : \x0304
+    LRED      : \x0304
+    DRED      : \x0305
+    PURPLE    : \x0306
+    BROWN     : \x0307
+    ORANGE    : \x0307
+    YELLOW    : \x0308
+    LGREEN    : \x0309
+    AQUA      : \x0310
+    LBLUE     : \x0311
+    BLUE      : \x0312
+    VIOLET    : \x0313
+    GREY      : \x0314
+    GRAY      : \x0314
+    LGREY     : \x0315
+    LGRAY     : \x0315
+    WHITE     : \x0316
+
+  background:
+    0
+
+  style:
+    NORMAL    : \x0F
+    BOLD      : \x02
+    REVERSE   : \x16
+    UNDERLINE : \x1F
+
+websites:
+  http://wiki.bash-hackers.org/scripting/terminalcodes
+  http://code.google.com/p/colorama/source/browse/colorama/ansi.py
+  http://cia-vc.googlecode.com/svn/trunk/cia/LibCIA/IRC/Formatting.py
+  https://github.com/myano/jenni/wiki/IRC-String-Formatting

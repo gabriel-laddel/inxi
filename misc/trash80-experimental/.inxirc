@@ -1,0 +1,47 @@
+#!/bin/bash
+
+##
+#	Scott Rogers : trash80
+#	inxi config
+#	configuration variables, to be set by users or devs
+##
+
+# set to default LANG to avoid locales errors with , or .
+LANG=C
+
+### Script Localization
+# Make sure every program speaks English.
+LC_ALL="C"
+export LC_ALL
+
+# override in user config if desired, seems like less than .3 doesn't work as reliably
+CPU_SLEEP='0.3' 
+
+# flag to allow distro maintainers to turn off update features. If false, turns off
+# -U and -! testing/advanced update options, as well as removing the -U help menu item
+B_ALLOW_UPDATE='true'
+
+# Defaults to 2, make this 1 for normal, 0 for no colorcodes at all. 
+# Set to any other valid scheme you like.
+# Same as runtime parameter.
+# this is color scheme, rename var
+DEFAULT_SCHEME=2
+
+# Verbosity level defaults to 0, this can also be set with -v0, -v2, -v3, etc as a parameter.
+VERBOSITY_LEVEL=0
+
+### Script names/paths - must be non root writable
+LOG_FILE="$SCRIPT_DATA_DIR/inxi.log"
+LOG_FILE_1="$SCRIPT_DATA_DIR/inxi.1.log"
+LOG_FILE_2="$SCRIPT_DATA_DIR/inxi.2.log"
+SCRIPT_NAME="inxi"
+SCRIPT_PATH=""			#filled-in in Main
+SCRIPT_VERSION_NUMBER=""	#filled-in in Main
+SCRIPT_DOWNLOAD='http://inxi.googlecode.com/svn/trunk/'
+SCRIPT_DOWNLOAD_BRANCH_1='http://inxi.googlecode.com/svn/branches/one/'
+SCRIPT_DOWNLOAD_BRANCH_2='http://inxi.googlecode.com/svn/branches/two/'
+SCRIPT_DOWNLOAD_BRANCH_3='http://inxi.googlecode.com/svn/branches/three/'
+SCRIPT_DOWNLOAD_BRANCH_4='http://inxi.googlecode.com/svn/branches/four/'
+SCRIPT_DOWNLOAD_DEV='http://smxi.org/test/'
+KONVI_CFG="konversation/scripts/$SCRIPT_NAME.conf" # relative path to $(kde-config --path data)
+

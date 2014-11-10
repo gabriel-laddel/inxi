@@ -1,0 +1,17 @@
+system type		: Broadcom BCM947XX
+processor		: 0
+cpu model		: BCM3302 V0.8
+BogoMIPS		: 199.47
+wait instruction	: no
+microsecond timers	: yes
+tlb_entries		: 32
+extra interrupt vector	: no
+hardware watchpoint	: no
+VCED exceptions		: not available
+VCEI exceptions		: not available
+unaligned_instructions	: 1644454
+dcache hits		: 2141112277
+dcache misses		: 1218236733
+icache hits		: 91360362
+icache misses		: 544843453
+instructions		: 0

@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+LINE='------------------------------------------------------'
+echo $LINE
+echo "debugger: client-version"
+echo "version: 1.2"
+echo "date: 2014-03-25"
+echo $LINE
+#echo PATH: $PATH
+PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/X11R6/bin:/usr/local/sbin:/usr/local/bin:/usr/games:."
+#echo PATH: $PATH
+SED_PATH=$(type -p sed)
+PS_PATH=$(type -p ps)
+RL_PATH=$(type -p readlink )
+echo "Starting client version debugger"
+echo $LINE
+if tty &>/dev/null; then
+	echo "Client running in shell"
+else
+	echo "Client running in IRC"
+fi
+if [[ -n $PPID ]];then
+	echo "EXISTS PPID: $PPID"
+else
+	echo "PPID: NOT FOUND!"
+fi
+# readlink /proc/$PPID/exe
+if [[ -e /proc/$PPID/exe ]];then
+	echo "EXISTS: /proc/$PPID/exe"
+	PATH=$( $RL_PATH /proc/$PPID/exe )
+	echo "PPID PATH: $PATH"
+	PATH_LOWER=${PATH,,}
+	CLIENT_WORKING_NAME=${PATH_LOWER##*/}
+	echo "NAME LOWER: $CLIENT_WORKING_NAME"
+	case $CLIENT_WORKING_NAME in
+		# bsd will never use this section
+		bash|dash|sh|python*|perl*)	# We want to know who wrapped it into the shell or perl.
+			PPPID="$( $PS_PATH -p $PPID -o ppid --no-headers | $SED_PATH 's/[[:space:]]//g' )"
+			echo "CONTAINER PPPID: $PPPID"
+			if [[ -n $PPPID && -f /proc/$PPPID/exe ]];then
+				PATH="$( $RL_PATH /proc/$PPPID/exe )"
+				echo "PPPID PATH: $PATH"
+				PATH_LOWER=${PATH,,}
+				echo "PPPID PATH LOWER: $PATH_LOWER"
+				CLIENT_WORKING_NAME=${PATH_LOWER##*/}
+				echo "PPPID CLIENT WORKING NAME: $CLIENT_WORKING_NAME"
+			else
+				echo 'Getting pppid client path failed for these reasons:'
+				if [[ -z $PPPID ]];then
+					echo "PPPID null: $PPPID"
+				else
+					if [[ ! -f /proc/$PPPID/exe ]];then
+						echo 'file not present: ' /proc/$PPPID/exe
+					else
+						echo 'file: -f present: ' /proc/$PPPID/exe
+					fi
+					if [[ $PPPID == 1 ]];then
+						echo "PPPID is equal to 1"
+						# this does not work in irc
+						#echo "showing ps aux data"
+						#echo "$($PS_PATH aux)"
+					fi
+				fi
+			fi
+			;;
+	esac
+	# checkstart
+else
+	echo "/proc/PPID/exe DOES NOT EXIST!"
+fi
+# echo PS AUX:
+# echo "$( $PS_PATH aux )"
+echo $LINE
+echo "End client version debugger"

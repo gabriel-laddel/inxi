@@ -1,0 +1,12 @@
+#!/bin/bash
+
+get_libata_usb_params()
+{
+	if [[ -e /proc/scsi/sg/device_strs ]]; then
+		gawk -F'\t' ' BEGIN { IGNORECASE=1 }
+		$1 !~ /^ata|scsi/    { print $1" "$2 }   ## prints out usb and cd/dvd r/w
+		' /proc/scsi/sg/device_strs
+	fi
+}
+
+get_libata_usb_params

@@ -1,0 +1,30 @@
+Reviews and articles about inxi
+
+ * http://blog.technotesdesk.com/inxi-tool-to-check-hardware-information-on-linux-system/
+ * http://www.networknuts.net/linux-hardware-information-using-inxi/
+ * http://www.linuxandlife.com/2012/01/inxi-awesome-tool-to-check-hardware.html
+ * http://www.binarytides.com/inxi-system-information-linux/
+ * http://lintut.com/inxi-great-tool-to-check-system-information-on-linux/
+ * http://www.syslogs.org/inxi-hardware-bilgilerinin-detayli-olarak-raporlanmasi/
+ * http://yatsite.blogspot.com/2010/03/install-inxi-in-macpup.html
+ * http://yatsite.blogspot.com/2010/04/inxi-yes-you-can-install-it-in-ubuntu.html
+ * http://www.funtechtips.com/2013/07/find-out-system-information-on-linux-with-inxi-free-system-info-app/
+ * http://sneekygeekers.com/2013/09/22/useful-terminal-apps-for-linux/
+ * http://www.thelinuxblog.com/better-system-information-with-inxi/
+ * https://linuxtoy.org/archives/inxi.html
+ * http://forum.peppermintos.com/index.php?topic=79.0
+ * http://linuxundich.de/ubuntu/alle-informationen-zum-rechner-in-textform-auf-einen-blick-inxi/
+ * http://forum.pisilinuxworld.org/index.php?topic=306.0
+ * http://linuxgeek1.wordpress.com/2013/04/17/inxi-a-system-information-script/
+ * http://zenway.ru/page/inxi
+ * http://www.upubuntu.com/2011/12/how-to-check-system-hardware-and.html
+ * http://mainstreetanswers.org/inxi.php
+ * http://www.knuckleheadtech.com/?p=12
+ * http://mint-my.blogspot.com/2012/05/using-inxi-to-show-system-data.html
+ * http://thewatertower.org/?p=86
+ * http://losst.wordpress.com/2012/08/19/help-us-help-you-with-inxi-and-sendmail/
+ * http://www.hellonull.com/?p=311
+ * http://inconsolation.wordpress.com/2013/01/03/inxi-inquiring-minds-want-to-know/
+ * http://ubuntuportal.com/2011/12/diagnosis-system-hardware-and-software-repository-using-inxi.html
+ * http://www.webupd8.org/2009/11/shell-system-information-tool-for-linux.html
+ * http://spiralinear.org/forum/discussion/1017/inxi-fxz-gives-us-great-system-information/p1

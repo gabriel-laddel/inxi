@@ -1,0 +1,16 @@
+Filsystem            1K-blokke     Brugt   Tilbage Brug% Monteret p�
+/dev/sda1             10151832   4105316   5530832  43% /
+tmpfs                  1037416         8   1037408   1% /lib/init/rw
+udev                     10240        84     10156   1% /dev
+tmpfs                  1037416         4   1037412   1% /dev/shm
+/dev/sda3             15116868   3691156  10657808  26% /home
+/dev/sda4             50615796  24549132  23495464  52% /mnt/data
+/dev/sdd1            240362656 184585536  43567320  81% /mnt/eks
+/dev/sdb1            480719056 414754008  41545848  91% /mnt/eks2
+/dev/sdc1            961432072 867296676  45297396  96% /mnt/eks3
+/dev/sde1            480719056 109032208 347267648  24% /media/disk
+/dev/sdf1            480719056 107409792 348890064  24% /media/disk-1
+/dev/sdg1            480719056 129721420 326578436  29% /media/disk-2
+/dev/sdh1            307663800 165336340 126699028  57% /mnt/eks4
+/dev/sdi1            480719056 134064584 322235272  30% /media/disk-3
+/dev/sdj1            307663800 165336340 126699028  57% /mnt/eks4

@@ -1,0 +1,88 @@
+## python page on this issue: http://bugs.python.org/issue1322
+
+The distribution name returned by platform.dist() depends on the order
+of os.path.listdir( '/etc' ). It selects the first file matching the
+regex r'(\w+)[-_](release|version)' and takes part of the file name
+(i.e. matchResult.groups()[0]) as distribution name. But there are often
+several files matching this pattern (at least on Fedora and Mandriva).
+For instance, on a Mandriva 2007.1 official, I can see the following files:
+
+[login@localhost ~]$ ls -l /etc/*-release
+-rw-r--r-- 1 root root 137 jan 18  2007 /etc/lsb-release
+lrwxrwxrwx 1 root root  16 oct  7 17:32 /etc/mandrakelinux-release ->
+mandriva-r
+                              elease
+lrwxrwxrwx 1 root root  16 oct  7 17:32 /etc/mandrake-release ->
+mandriva-releas
+                                   e
+-rw-r--r-- 1 root root  50 avr  2  2007 /etc/mandriva-release
+lrwxrwxrwx 1 root root  16 oct  7 17:32 /etc/redhat-release ->
+mandriva-release
+
+Therefore, the result for platform.distrib()[0] could be mandriva,
+mandrake, redhat or even lsb. The first match wins !
+
+Ignoring symlinks could remove part of the problem. On Mandriva, it
+would leave only lsb-release and mandriva-release. It is possible to
+select the good one by ignoring lsb-release or by verifying the file's
+content (mandriva-release has one line and lsb-release has several
+lines). I do not know if the second method is portable.
+
+
+
+
+
+
+
+
+
+
+# this information is from this webpage: http://linuxmafia.com/faq/Admin/release-files.html
+/etc/release equivalents for sundry Linux (and other Unix) distributions
+
+These are useful in cross-platform scripts.
+
+
+Annvix: /etc/annvix-release
+
+#note: arch-release has a bug, it is currently null, empty.
+Arch Linux: /etc/arch-release
+Arklinux: /etc/arklinux-release
+Aurox Linux: /etc/aurox-release
+BlackCat: /etc/blackcat-release
+Cobalt: /etc/cobalt-release
+Conectiva: /etc/conectiva-release
+Debian: /etc/debian_version, /etc/debian_release (rare)
+Fedora Core: /etc/fedora-release
+Gentoo Linux: /etc/gentoo-release
+Immunix: /etc/immunix-release
+Knoppix: knoppix_version
+Linux-From-Scratch: /etc/lfs-release
+Linux-PPC: /etc/linuxppc-release
+Mandrake: /etc/mandrake-release
+Mandriva/Mandrake Linux: /etc/mandriva-release, /etc/mandrake-release, /etc/mandakelinux-release
+MkLinux: /etc/mklinux-release
+Novell Linux Desktop: /etc/nld-release
+PLD Linux: /etc/pld-release
+Red Hat: /etc/redhat-release, /etc/redhat_version (rare)
+Slackware: /etc/slackware-version, /etc/slackware-release (rare)
+SME Server (Formerly E-Smith): /etc/e-smith-release
+Solaris SPARC: /etc/release
+Sun JDS: /etc/sun-release
+SUSE Linux: /etc/SuSE-release, /etc/novell-release
+SUSE Linux ES9: /etc/sles-release
+Tiny Sofa: /etc/tinysofa-release
+TurboLinux: /etc/turbolinux-release
+Ubuntu Linux: /etc/lsb-release
+UltraPenguin: /etc/ultrapenguin-release
+UnitedLinux: /etc/UnitedLinux-release (covers SUSE SLES8)
+VA-Linux/RH-VALE: /etc/va-release
+Yellow Dog: /etc/yellowdog-release
+
+The command "echo /etc/*_ver* /etc/*-rel*; cat /etc/*_ver* /etc/*-rel*" should find any reasonably similar variants.
+
+The /etc/issue and /etc/issue.net files are also often helpful.
+
+Linux System Base-compliant systems should have a file called /etc/lsb_release, which may be in addition to a distribution-specific file.
+
+Many non-Red Hat RPM-based distributions include /etc/redhat-release for compatibility.

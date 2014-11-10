@@ -1,0 +1,174 @@
+#!/bin/bash
+
+## return value cpu core count string, this helps resolve the multi redundant lines of old style output
+get_cpu_core_count()
+{
+	## Because of the upcoming release of cpus with core counts over 6, a count of cores is given after Deca (10)
+	# count the number of processors given
+	local cpu_core_count=$(grep -ic "cpu cores" /proc/cpuinfo| cut -d':' -f2) 
+	local cpu_alpha_count='' core_count=''
+
+	if [[ $cpu_core_count -lt 2 ]]; then
+		cpu_core_count=1
+	fi
+	
+	# match the numberic value to an alpha value
+	case $cpu_core_count in 
+		1) cpu_alpha_count='Single';;
+		2) cpu_alpha_count='Dual';;
+		3) cpu_alpha_count='Triple';;
+		4) cpu_alpha_count='Quad';;
+		5) cpu_alpha_count='Penta';;
+		6) cpu_alpha_count='Hexa';;
+		7) cpu_alpha_count='Hepta';;
+		8) cpu_alpha_count='Octa';;
+		9) cpu_alpha_count='Ennea';;
+		10) cpu_alpha_count='Deca';;
+		*) cpu_alpha_count='Multi';;
+	esac
+	## we'll be splitting the output to number of cores/core count string
+	core_count="$cpu_core_count:$cpu_alpha_count Core"
+	echo "$core_count"
+}
+
+## working, will be replaced by new trash80 stuff
+get_cpu_data()
+{
+	local i='' j='' cpu_array_nu='' a_cpu_working='' multi_cpu=''
+
+	IFS=$'\n'
+	A_CPU_DATA=($(gawk -F': ' '
+	# TAKE NOTE: \t+ will work for /proc/cpuinfo, but SOME ARBITRARY FILE used for TESTING might contain SPACES!
+	# Therefore PATCH to use [ \t]+ when TESTING!
+	/^processor\t+:/ { nr = $NF }
+	
+	/^model name/ { cpu[nr, "model"] = $NF }
+	
+	/^cpu MHz/    {
+		if (!min) { 
+			min = $NF
+		} 
+		else { 
+			if ($NF < min) { min = $NF } 
+		}
+		
+		if ($NF > max) { max = $NF }
+		cpu[nr, "speed"] = $NF
+	}
+	
+	/^cache size/      { cpu[nr, "cache"] = $NF }
+	
+	/^flags/      { cpu[nr, "flags"] = $NF }
+	
+	/^bogomips/   { cpu[nr, "bogomips"] = $NF }
+	
+	END {
+		#if (!nr) { print ",,,"; exit } # <- should this be necessary or should bash handle that
+		for (i = 0; i <= nr; i++) {
+			print cpu[i, "model"] "," cpu[i, "speed"] "," cpu[i, "cache"] "," cpu[i, "flags"] "," cpu[i, "bogomips"]
+		}
+		if (!min) { 
+			print "not found"
+			exit 
+		}
+		if (min != max) { 
+			printf("Min:%s%s Max:%s%s\n", min, "Mhz", max, "Mhz") 
+		}
+		else { 
+			printf("%s %s\n", max, "Mhz") 
+		}
+	}
+	' /proc/cpuinfo))
+	
+	IFS="$ORIGINAL_IFS"
+	
+	for (( i=0; i < ${#A_CPU_DATA[@]} - 1; i++ ))
+	do
+		IFS=","
+		a_cpu_working=(${A_CPU_DATA[i]})
+		IFS="$ORIGINAL_IFS"
+		unset A_CPU_DATA[i]
+		a_cpu_working[0]=$( sanitize_characters A_NORMAL_BANS "${a_cpu_working[0]}" )
+		a_cpu_working[0]=$( sanitize_characters A_CPU_BANS "${a_cpu_working[0]}" )
+		# I use all these loops so I can easily extend the cpu array created in the awk script above with more fields per cpu.
+		for (( j=0; j < ${#a_cpu_working[@]}; j++ ))
+		do
+			if [ "$j" -gt 0 ];then
+				A_CPU_DATA[i]="${A_CPU_DATA[i]},${a_cpu_working[j]}"
+			else
+				A_CPU_DATA[i]="${a_cpu_working[j]}"
+			fi
+		done
+	done
+	## not using this now, replaced by new get_core_count, but if we need this in the future
+	## it will be in modules/legacy, for now leaving it here
+	# test for multi core cpu present
+# 	multi_cpu=$( grep -i 'dual\|triple\|quad' <<< "${A_CPU_DATA[@]}" )
+# 	if [ -n "$multi_cpu" ];then
+# 		NO_CPU_COUNT=1
+# 	else
+# 		case $(( ${#A_CPU_DATA[@]}-1 )) in 
+# 			2)
+# 				CPU2="Dual"
+# 				;;
+# 			3)
+# 				CPU2="Triple"
+# 				;;
+# 			4)
+# 				CPU2="Quad"
+# 				;;
+# 			[5-9]|[1-9][0-9]) 
+# 				CPU2="${#A_CPU_DATA[@]}x"
+# 				;;
+# 			*) 
+# 				unset CPU2
+# 				;;
+# 		esac
+# 	fi
+	
+	IFS=","
+	a_cpu_working=(${A_CPU_DATA[0]})
+	IFS="$ORIGINAL_IFS"
+	# For the short line
+	# CPU_MODEL="${CPU2}${CPU2+ }${a_cpu_working[0]}" # clocked at [${CPU[${#CPU[@]}-1]}]"	# old CPU2
+	CPU_MODEL="${a_cpu_working[0]}"
+	# set count first, this avoids an syntax highlighting error with nested {{...}}
+	cpu_array_nu=$(( ${#A_CPU_DATA[@]} - 1 ))
+	CPU_CLOCK="${A_CPU_DATA[$cpu_array_nu]}" # old CPU3
+	CPU_FLAGS="${a_cpu_working[3]}" # old CPU4
+	# nx = AMD stack protection extensions
+	# lm = Intel 64bit extensions
+	# sse, sse2, pni = sse1,2,3 gfx extensions
+	# svm = AMD pacifica virtualization extensions
+	# vmx = Intel IVT (vanderpool) virtualization extensions
+	CPU_FLAGS=$( echo "$CPU_FLAGS" | awk '
+	BEGIN {
+			RS=" "
+			ssel["sse"] = 1
+			ssel["sse2"] = 2
+			ssel["pni"] = 3
+		sses[1] = "sse"
+		sses[2] = "sse2"
+		sses[3] = "sse3"
+	}
+	/^(nx|lm|svm|vmx)$/ {
+			if (s) { s = s " " $0 }
+			else { s = $0 }
+	}
+	/^(sse2?|pni)$/ {
+			if (ssel[$0] > sse) sse = ssel[$0]
+	}
+	END {
+			if (sse) {
+						if (s) s = sses[sse] " " s;
+						else s = sses[sse]
+			}
+			print s
+	}
+	' )
+	
+	#grep -oE '\<(nx|lm|sse[0-9]?|pni|svm|vmx)\>' | tr '\n' ' '))
+	if [ -z "$CPU_FLAGS" ];then
+		CPU_FLAGS="-"
+	fi
+}
